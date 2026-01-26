@@ -1,0 +1,60 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
+    hooks:
+      - id: ruff-format
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+  - repo: local
+    hooks:
+      - id: pyright
+        name: pyright
+        entry: uv run pyright
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: pylint
+        name: pylint
+        entry: uv run pylint
+        language: system
+        types: [python]
+        args: [--score=no]
+
+      - id: bandit
+        name: bandit
+        entry: uv run bandit
+        language: system
+        types: [python]
+        args: [-c, pyproject.toml, -r]
+
+      - id: vulture
+        name: vulture
+        entry: uv run vulture
+        language: system
+        types: [python]
+        args: [--min-confidence, "80", .]
+        pass_filenames: false
+
+      - id: radon
+        name: radon
+        entry: bash -c 'uv run radon cc . -a -nc --total-average | tail -1 | grep -q "^Average complexity: A" || (echo "Radon complexity grade below A" && exit 1)'
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: mkdocs-build
+        name: mkdocs build check
+        entry: uv run mkdocs build --strict
+        language: system
+        pass_filenames: false
+        files: '(mkdocs\.yml|docs/.*\.md)$'
+
+      - id: pytest
+        name: pytest
+        entry: uv run pytest
+        language: system
+        types: [python]
+        pass_filenames: false
+        stages: [pre-commit]

@@ -1,0 +1,30 @@
+layout {
+    default_tab_template {
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        children
+        pane size=2 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+    }
+
+    tab name="claude" {
+        pane {
+            command "fish"
+            args "-c" "source .venv/bin/activate.fish; claude; exec fish"
+        }
+    }
+    tab name="project_root" {
+        pane {
+            command "fish"
+            args "-c" "source .venv/bin/activate.fish; exec fish"
+        }
+    }
+    tab name="main" {
+        pane {
+            command "fish"
+            args "-c" "source .venv/bin/activate.fish; nvim main.py; exec fish"
+        }
+    }
+}

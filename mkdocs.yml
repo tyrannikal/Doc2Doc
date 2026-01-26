@@ -1,0 +1,19 @@
+site_name: Doc2Doc
+site_description: Documentation for Doc2Doc
+site_author: tyrannikal
+
+docs_dir: docs
+site_dir: site
+
+nav:
+  - Home: index.md
+
+theme:
+  name: readthedocs
+
+strict: true
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
