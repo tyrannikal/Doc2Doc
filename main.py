@@ -1,10 +1,19 @@
-"""Main module."""
+def stylize_title(document: str) -> str:
+    return document.replace(document, add_border(center_title(document)))
 
 
-def main() -> None:
-    """Print hello world."""
-    print("Hello, World!")
+# Don't touch below this line
 
 
-if __name__ == "__main__":
-    main()
+def center_title(document: str) -> str:
+    width: int = 40
+    title: str = document.split("\n")[0]
+    centered_title: str = title.center(width)
+    return document.replace(title, centered_title)
+
+
+def add_border(document: str) -> str:
+    title: str = document.split("\n")[0]
+    border: str = "*" * len(title)
+    return document.replace(title, title + "\n" + border)
+
