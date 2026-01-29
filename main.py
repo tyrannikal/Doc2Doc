@@ -17,3 +17,12 @@ def add_border(document: str) -> str:
     border: str = "*" * len(title)
     return document.replace(title, title + "\n" + border)
 
+
+def add_prefix(document: str, documents: tuple[str, ...]) -> tuple[str, ...]:
+    prefix: str = f"{len(documents)}. "
+    new_doc: str = prefix + document
+    documents = (
+        *documents,
+        new_doc,
+    )
+    return documents

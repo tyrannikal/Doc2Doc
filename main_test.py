@@ -2,31 +2,19 @@ from main import *
 
 run_cases = [
     (
-        """The Importance of FP
-Learn how functional programming can change the way you think about code.
-Benefits include immutability, simplicity, and composability.""",
-        """          The Importance of FP          
-****************************************
-Learn how functional programming can change the way you think about code.
-Benefits include immutability, simplicity, and composability.""",
-    ),
+        ("hello there", "sonny", "how ya doing"),
+        ("0. hello there", "1. sonny", "2. how ya doing"),
+    )
 ]
 
 submit_cases = run_cases + [
     (
-        """Short Title
-Equally short story""",
-        """              Short Title               \n****************************************
-Equally short story""",
+        ("go", "python", "java", "javascript"),
+        ("0. go", "1. python", "2. java", "3. javascript"),
     ),
     (
-        """DocToDoc: A Guide
-Understanding the art of document conversion.
-We write cool functional code to make it happen.""",
-        """           DocToDoc: A Guide            
-****************************************
-Understanding the art of document conversion.
-We write cool functional code to make it happen.""",
+        ("boots", "everyone else"),
+        ("0. boots", "1. everyone else"),
     ),
 ]
 
@@ -34,11 +22,16 @@ We write cool functional code to make it happen.""",
 def test(input1, expected_output):
     print("---------------------------------")
     print(f"Inputs:")
-    print(f" * document: {input1}\n")
-    print(f"Expected:\n{expected_output}\n")
-    result = stylize_title(input1)
-    print(f"Actual:\n{result}\n")
-    if result == expected_output:
+    print(f" * documents: {input1}")
+    print(f"Expected: {expected_output}")
+    try:
+        documents = ()
+        for doc in input1:
+            documents = add_prefix(doc, documents)
+    except Exception as e:
+        documents = f"Error: {e}"
+    print(f"Actual: {documents}")
+    if documents == expected_output:
         print("Pass")
         return True
     print("Fail")
