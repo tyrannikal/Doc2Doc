@@ -1,16 +1,16 @@
 from main import *
 
 run_cases = [
-    ([4, 3, 2, 1, 5], 3),
-    ([20, 14, 16], 16),
-    ([9, 11, 16, 20], 11),
-    ([], None),
+    (
+        "You can't spell America without Erica",
+        "YOU CAN'T SPELL AMERICA WITHOUT ERICA...",
+    ),
+    ("Friends don't lie.", "FRIENDS DON'T LIE..."),
+    (" She's our friend and she's crazy!", "SHE'S OUR FRIEND AND SHE'S CRAZY!..."),
 ]
 
 submit_cases = run_cases + [
-    ([8, 8, 8], 8),
-    ([30, 18, 14, 22], 18),
-    ([6, 24, 6, 6, 24, 24, 2, 1, 3], 6),
+    (" You're gonna slay 'em dead, Nance. ", "YOU'RE GONNA SLAY 'EM DEAD, NANCE..."),
 ]
 
 
@@ -18,16 +18,9 @@ def test(input, expected_output):
     print("---------------------------------")
     print(f"Input: {input}")
     print(f"Expected: {expected_output}")
-    input_copy = input.copy()
-    result = get_median_font_size(input)
+    result = format_line(input)
     print(f"Actual: {result}")
     if result != expected_output:
-        print("Fail")
-        return False
-    if input != input_copy:
-        print(f"Expected font_sizes: {input_copy}")
-        print(f"Actual font_sizes: {input}")
-        print("font_sizes was modified")
         print("Fail")
         return False
     print("Pass")
@@ -59,4 +52,3 @@ if "__RUN__" in globals():
     test_cases = run_cases
 
 main()
-

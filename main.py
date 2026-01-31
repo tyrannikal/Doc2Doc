@@ -31,6 +31,8 @@ def add_prefix(document: str, documents: tuple[str, ...]) -> tuple[str, ...]:
 def get_median_font_size(font_sizes: list[int]) -> int | None:
     if not font_sizes:
         return None
+    return sorted(font_sizes)[(len(font_sizes) - 1) // 2]
 
-    font_sizes_sorted: list[int] = sorted(font_sizes)
-    return font_sizes_sorted[(len(font_sizes_sorted) - 1) // 2]
+
+def format_line(line: str) -> str:
+    return f"{line.replace('.', '').upper().strip()}..."
