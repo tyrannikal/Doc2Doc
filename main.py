@@ -26,3 +26,11 @@ def add_prefix(document: str, documents: tuple[str, ...]) -> tuple[str, ...]:
         new_doc,
     )
     return documents
+
+
+def get_median_font_size(font_sizes: list[int]) -> int | None:
+    if not font_sizes:
+        return None
+
+    font_sizes_sorted: list[int] = sorted(font_sizes)
+    return font_sizes_sorted[(len(font_sizes_sorted) - 1) // 2]

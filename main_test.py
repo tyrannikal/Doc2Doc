@@ -1,41 +1,37 @@
 from main import *
 
 run_cases = [
-    (
-        ("hello there", "sonny", "how ya doing"),
-        ("0. hello there", "1. sonny", "2. how ya doing"),
-    )
+    ([4, 3, 2, 1, 5], 3),
+    ([20, 14, 16], 16),
+    ([9, 11, 16, 20], 11),
+    ([], None),
 ]
 
 submit_cases = run_cases + [
-    (
-        ("go", "python", "java", "javascript"),
-        ("0. go", "1. python", "2. java", "3. javascript"),
-    ),
-    (
-        ("boots", "everyone else"),
-        ("0. boots", "1. everyone else"),
-    ),
+    ([8, 8, 8], 8),
+    ([30, 18, 14, 22], 18),
+    ([6, 24, 6, 6, 24, 24, 2, 1, 3], 6),
 ]
 
 
-def test(input1, expected_output):
+def test(input, expected_output):
     print("---------------------------------")
-    print(f"Inputs:")
-    print(f" * documents: {input1}")
+    print(f"Input: {input}")
     print(f"Expected: {expected_output}")
-    try:
-        documents = ()
-        for doc in input1:
-            documents = add_prefix(doc, documents)
-    except Exception as e:
-        documents = f"Error: {e}"
-    print(f"Actual: {documents}")
-    if documents == expected_output:
-        print("Pass")
-        return True
-    print("Fail")
-    return False
+    input_copy = input.copy()
+    result = get_median_font_size(input)
+    print(f"Actual: {result}")
+    if result != expected_output:
+        print("Fail")
+        return False
+    if input != input_copy:
+        print(f"Expected font_sizes: {input_copy}")
+        print(f"Actual font_sizes: {input}")
+        print("font_sizes was modified")
+        print("Fail")
+        return False
+    print("Pass")
+    return True
 
 
 def main():
@@ -63,3 +59,4 @@ if "__RUN__" in globals():
     test_cases = run_cases
 
 main()
+
