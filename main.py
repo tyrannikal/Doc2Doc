@@ -36,3 +36,7 @@ def get_median_font_size(font_sizes: list[int]) -> int | None:
 
 def format_line(line: str) -> str:
     return f"{line.replace('.', '').upper().strip()}..."
+
+
+def choose_parser(file_extension: str) -> str:
+    return "markdown" if file_extension.lower() in ("markdown", "md") else "plaintext"
