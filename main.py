@@ -40,3 +40,24 @@ def format_line(line: str) -> str:
 
 def choose_parser(file_extension: str) -> str:
     return "markdown" if file_extension.lower() in ("markdown", "md") else "plaintext"
+
+
+def hex_to_rgb(hex_color: str) -> tuple[int, ...]:
+    if not is_hexadecimal(hex_color) or len(hex_color) != 6:
+        raise TypeError("not a hex color string")
+
+    r = int(hex_color[:2], base=16)
+    g = int(hex_color[2:4], base=16)
+    b = int(hex_color[4:], base=16)
+    return r, g, b
+
+
+# Don't edit below this line
+
+
+def is_hexadecimal(hex_string: str) -> bool:
+    try:
+        int(hex_string, 16)
+        return True
+    except Exception:
+        return False
