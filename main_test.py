@@ -1,80 +1,63 @@
 from main import *
 
 
+def to_string(file):
+    return (
+        f"File: {file['filename']}\n"
+        f"Author: {file['author_first_name']} {file['author_last_name']}\n"
+        f"Content: {file['content']}"
+    )
+
+
 run_cases = [
     (
-        "00FFFF",
-        (0, 255, 255),
+        {
+            "filename": "essay.txt",
+            "content": "Dear Mr. Vernon, we accept the fact that we had to sacrifice a whole Saturday in detention for whatever it was we did wrong...",
+            "author_first_name": "Brian",
+            "author_last_name": "Johnson",
+        },
+        "```\nFile: essay.txt\nAuthor: Brian Johnson\nContent: Dear Mr. Vernon, we accept the fact that we had to sacrifice a whole Saturday in detention for whatever it was we did wrong...\n```",
     ),
     (
-        "FFFF00",
-        (255, 255, 0),
-    ),
-    (
-        "Hello!",
-        None,
-        "not a hex color string",
-    ),
-    (
-        "42",
-        None,
-        "not a hex color string",
-    ),
-    (
-        1_000_000,
-        None,
-        "not a hex color string",
+        {
+            "filename": "letter.txt",
+            "content": "But we think you're crazy to make us write an essay telling you who we think we are.",
+            "author_first_name": "Brian",
+            "author_last_name": "Johnson",
+        },
+        "```\nFile: letter.txt\nAuthor: Brian Johnson\nContent: But we think you're crazy to make us write an essay telling you who we think we are.\n```",
     ),
 ]
 
 submit_cases = run_cases + [
     (
-        "",
-        None,
-        "not a hex color string",
-    ),
-    (
-        "FF00FF",
-        (255, 0, 255),
-    ),
-    (
-        "000000",
-        (0, 0, 0),
-    ),
-    (
-        "FFFFFF",
-        (255, 255, 255),
+        {
+            "filename": "note.txt",
+            "content": "Does Barry Manilow know that you raid his wardrobe?",
+            "author_first_name": "John",
+            "author_last_name": "Bender",
+        },
+        "```\nFile: note.txt\nAuthor: John Bender\nContent: Does Barry Manilow know that you raid his wardrobe?\n```",
     ),
 ]
 
 
-def test(input, expected_output, expected_err=None):
+def test(input1, expected_output):
     print("---------------------------------")
-    print(f"  Inputs: '{input}'")
-    try:
-        result = hex_to_rgb(input)
-    except Exception as e:
-        print(f"Expected Error: {expected_err}")
-        print(f"  Actual Error: {str(e)}")
-        if str(e) != expected_err:
-            print("Fail")
-            return False
+    print("Inputs:")
+    print(f"  filename: {input1['filename']}")
+    print(f"  content: {input1['content'][:30]}...")  # Truncate for display
+    print(f"  author_first_name: {input1['author_first_name']}")
+    print(f"  author_last_name: {input1['author_last_name']}")
+    print(f"Expected:\n{expected_output}")
+    result = file_to_prompt(input1, to_string)
+    print(f"Actual:\n{result}")
+    if result == expected_output:
         print("Pass")
         return True
-
-    if expected_err is not None:
-        print(f"Expected Error: {expected_err}")
-        print(f"        Actual: {result} (no error thrown)")
-        print("Fail")
-        return False
-
-    print(f"Expected: {expected_output}")
-    print(f"  Actual: {result}")
-    if result != expected_output:
-        print("Fail")
-        return False
-    print("Pass")
-    return True
+    print("Fail")
+    return False
 
 
 def main():
@@ -102,3 +85,4 @@ if "__RUN__" in globals():
     test_cases = run_cases
 
 main()
+

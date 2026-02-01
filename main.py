@@ -1,8 +1,8 @@
+from collections.abc import Callable
+
+
 def stylize_title(document: str) -> str:
     return document.replace(document, add_border(center_title(document)))
-
-
-# Don't touch below this line
 
 
 def center_title(document: str) -> str:
@@ -52,12 +52,15 @@ def hex_to_rgb(hex_color: str) -> tuple[int, ...]:
     return r, g, b
 
 
-# Don't edit below this line
-
-
 def is_hexadecimal(hex_string: str) -> bool:
     try:
         int(hex_string, 16)
         return True
     except Exception:
         return False
+
+
+def file_to_prompt(
+    file: dict[str, str], to_string: Callable[[dict[str, str]], str]
+) -> str:
+    return f"```\n{to_string(file)}\n```"
