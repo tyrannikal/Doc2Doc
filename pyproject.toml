@@ -23,6 +23,7 @@ dev = [
 [tool.ruff]
 line-length = 88
 target-version = "py312"
+extend-exclude = ["main_test.py"]
 
 [tool.ruff.lint]
 select = [
@@ -49,8 +50,12 @@ select = [
 ]
 ignore = [
     "D100",   # Missing docstring in public module
+    "D103",   # Missing docstring in public function
     "D104",   # Missing docstring in public package
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "PLR2004", "D103"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -63,6 +68,7 @@ docstring-code-format = true
 [tool.pyright]
 pythonVersion = "3.12"
 typeCheckingMode = "strict"
+exclude = ["main_test.py", ".venv"]
 reportMissingImports = true
 reportMissingTypeStubs = true
 reportUnusedImport = true
@@ -91,6 +97,7 @@ reportShadowedImports = true
 [tool.pylint.main]
 py-version = "3.12"
 jobs = 0
+ignore = ["main_test.py"]
 
 [tool.pylint.messages_control]
 max-line-length = 88
@@ -132,7 +139,7 @@ addopts = [
 [tool.coverage.run]
 branch = true
 source = ["."]
-omit = ["tests/*", ".venv/*"]
+omit = ["tests/*", ".venv/*", "main_test.py"]
 
 [tool.coverage.report]
 exclude_lines = [

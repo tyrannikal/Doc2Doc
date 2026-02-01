@@ -1,5 +1,7 @@
 from collections.abc import Callable
 
+HEX_COLOR_LENGTH = 6
+
 
 def stylize_title(document: str) -> str:
     return document.replace(document, add_border(center_title(document)))
@@ -43,7 +45,7 @@ def choose_parser(file_extension: str) -> str:
 
 
 def hex_to_rgb(hex_color: str) -> tuple[int, ...]:
-    if not is_hexadecimal(hex_color) or len(hex_color) != 6:
+    if not is_hexadecimal(hex_color) or len(hex_color) != HEX_COLOR_LENGTH:
         raise TypeError("not a hex color string")
 
     r = int(hex_color[:2], base=16)
@@ -56,7 +58,7 @@ def is_hexadecimal(hex_string: str) -> bool:
     try:
         int(hex_string, 16)
         return True
-    except Exception:
+    except ValueError:
         return False
 
 

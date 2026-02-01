@@ -3,8 +3,10 @@ repos:
     rev: v0.8.0
     hooks:
       - id: ruff-format
+        exclude: main_test\.py
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
+        exclude: main_test\.py
 
   - repo: local
     hooks:
@@ -21,6 +23,7 @@ repos:
         language: system
         types: [python]
         args: [--score=no]
+        exclude: main_test\.py
 
       - id: bandit
         name: bandit
@@ -28,18 +31,22 @@ repos:
         language: system
         types: [python]
         args: [-c, pyproject.toml, -r]
+        exclude: main_test\.py
 
       - id: vulture
         name: vulture
         entry: uv run vulture
         language: system
         types: [python]
-        args: [--min-confidence, "80", .]
+        args: [--min-confidence, "80", --exclude, "main_test.py,.venv", .]
         pass_filenames: false
 
       - id: radon
         name: radon
-        entry: bash -c 'uv run radon cc . -a -nc --total-average | tail -1 | grep -q "^Average complexity: A" || (echo "Radon complexity grade below A" && exit 1)'
+        entry: >-
+          bash -c "uv run radon cc . -a -nc --total-average -e main_test.py |
+          tail -1 | grep -q '^Average complexity: A' ||
+          (echo 'Radon complexity grade below A' && exit 1)"
         language: system
         types: [python]
         pass_filenames: false
