@@ -86,3 +86,104 @@ if "__RUN__" in globals():
 
 main()
 
+
+# file_type_getter tests
+file_type_getter_run_cases = [
+    # (file_extension_tuples, extension_to_lookup, expected_type)
+    (
+        [("Document", ["doc", "docx", "pdf"])],
+        "pdf",
+        "Document",
+    ),
+    (
+        [("Document", ["doc", "docx", "pdf"]), ("Image", ["png", "jpg", "gif"])],
+        "jpg",
+        "Image",
+    ),
+]
+
+file_type_getter_submit_cases = file_type_getter_run_cases + [
+    # Unknown extension returns "Unknown"
+    (
+        [("Document", ["doc", "docx"])],
+        "xyz",
+        "Unknown",
+    ),
+    # Empty list returns "Unknown" for any lookup
+    (
+        [],
+        "pdf",
+        "Unknown",
+    ),
+    # Multiple types with overlapping-style extensions
+    (
+        [
+            ("Text", ["txt", "text"]),
+            ("Markup", ["html", "xml", "md"]),
+            ("Code", ["py", "js", "ts"]),
+        ],
+        "py",
+        "Code",
+    ),
+    # First extension in a list
+    (
+        [("Spreadsheet", ["xls", "xlsx", "csv"])],
+        "xls",
+        "Spreadsheet",
+    ),
+    # Last extension in a list
+    (
+        [("Spreadsheet", ["xls", "xlsx", "csv"])],
+        "csv",
+        "Spreadsheet",
+    ),
+    # Case sensitivity check - extensions are case-sensitive
+    (
+        [("Image", ["PNG", "JPG"])],
+        "png",
+        "Unknown",
+    ),
+]
+
+
+def test_file_type_getter(file_extension_tuples, extension, expected_type):
+    print("---------------------------------")
+    print("Inputs:")
+    print(f"  file_extension_tuples: {file_extension_tuples}")
+    print(f"  extension to lookup: {extension}")
+    print(f"Expected: {expected_type}")
+    getter = file_type_getter(file_extension_tuples)
+    result = getter(extension)
+    print(f"Actual: {result}")
+    if result == expected_type:
+        print("Pass")
+        return True
+    print("Fail")
+    return False
+
+
+def main_file_type_getter():
+    passed = 0
+    failed = 0
+    cases = file_type_getter_submit_cases
+    if "__RUN__" in globals():
+        cases = file_type_getter_run_cases
+    skipped = len(file_type_getter_submit_cases) - len(cases)
+    for test_case in cases:
+        correct = test_file_type_getter(*test_case)
+        if correct:
+            passed += 1
+        else:
+            failed += 1
+    if failed == 0:
+        print("============= PASS ==============")
+    else:
+        print("============= FAIL ==============")
+    if skipped > 0:
+        print(f"{passed} passed, {failed} failed, {skipped} skipped")
+    else:
+        print(f"{passed} passed, {failed} failed")
+
+
+print("\n\n=== file_type_getter tests ===")
+main_file_type_getter()

@@ -8,6 +8,7 @@ from main import (
     center_title,
     choose_parser,
     file_to_prompt,
+    file_type_getter,
     format_line,
     get_median_font_size,
     hex_to_rgb,
@@ -221,3 +222,55 @@ class TestFileToPrompt:
 
         result = file_to_prompt(file_data, custom_to_str)
         assert "Key is value" in result
+
+
+class TestFileTypeGetter:
+    """Tests for file_type_getter function."""
+
+    def test_returns_callable(self) -> None:
+        """Test that function returns a callable."""
+        getter = file_type_getter([("Document", ["doc", "pdf"])])
+        assert callable(getter)
+
+    def test_finds_extension_type(self) -> None:
+        """Test basic extension lookup."""
+        getter = file_type_getter([("Document", ["doc", "docx", "pdf"])])
+        assert getter("pdf") == "Document"
+        assert getter("doc") == "Document"
+
+    def test_multiple_file_types(self) -> None:
+        """Test lookup across multiple file types."""
+        getter = file_type_getter(
+            [
+                ("Document", ["doc", "docx", "pdf"]),
+                ("Image", ["png", "jpg", "gif"]),
+                ("Code", ["py", "js", "ts"]),
+            ]
+        )
+        assert getter("pdf") == "Document"
+        assert getter("jpg") == "Image"
+        assert getter("py") == "Code"
+
+    def test_unknown_extension_returns_unknown(self) -> None:
+        """Test that unknown extension returns 'Unknown'."""
+        getter = file_type_getter([("Document", ["doc", "pdf"])])
+        assert getter("xyz") == "Unknown"
+        assert getter("") == "Unknown"
+
+    def test_empty_list_returns_unknown(self) -> None:
+        """Test empty extension list returns 'Unknown' for any lookup."""
+        getter = file_type_getter([])
+        assert getter("pdf") == "Unknown"
+        assert getter("any") == "Unknown"
+
+    def test_case_sensitive(self) -> None:
+        """Test that extension matching is case-sensitive."""
+        getter = file_type_getter([("Image", ["PNG", "JPG"])])
+        assert getter("PNG") == "Image"
+        assert getter("png") == "Unknown"
+
+    def test_first_and_last_extensions(self) -> None:
+        """Test first and last extensions in list are found."""
+        getter = file_type_getter([("Spreadsheet", ["xls", "xlsx", "csv"])])
+        assert getter("xls") == "Spreadsheet"
+        assert getter("csv") == "Spreadsheet"

@@ -66,3 +66,14 @@ def file_to_prompt(
     file: dict[str, str], to_string: Callable[[dict[str, str]], str]
 ) -> str:
     return f"```\n{to_string(file)}\n```"
+
+
+def file_type_getter(
+    file_extension_tuples: list[tuple[str, list[str]]],
+) -> Callable[[str], str]:
+    ext_type_dict = {
+        extension: doc_type[0]
+        for doc_type in file_extension_tuples
+        for extension in doc_type[1]
+    }
+    return lambda found_type: ext_type_dict.get(found_type, "Unknown")
