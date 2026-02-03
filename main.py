@@ -3,6 +3,15 @@ from functools import reduce
 
 HEX_COLOR_LENGTH = 6
 
+valid_formats = [
+    "docx",
+    "pdf",
+    "txt",
+    "pptx",
+    "ppt",
+    "md",
+]
+
 
 def stylize_title(document: str) -> str:
     return document.replace(document, add_border(center_title(document)))
@@ -104,3 +113,14 @@ def join(doc_so_far: str, sentence: str) -> str:
 
 def join_first_sentences(sentences: list[str], n: int) -> str:
     return f"{reduce(join, sentences[:n])}." if n else ""
+
+
+def pair_document_with_format(
+    doc_names: list[str], doc_formats: list[str]
+) -> list[tuple[str, str]]:
+    return list(
+        filter(
+            lambda valid_tuple: valid_tuple[1] in valid_formats,
+            list(zip(doc_names, doc_formats, strict=True)),
+        )
+    )

@@ -2,47 +2,43 @@ from main import *
 
 run_cases = [
     (
-        ["I don't feel safe", "Are you cussing with me"],
-        2,
-        "I don't feel safe. Are you cussing with me.",
+        (["Proposal", "Invoice", "Contract"], ["docx", "pdoof", "txt"]),
+        [("Proposal", "docx"), ("Contract", "txt")],
     ),
     (
-        ["You're fantastic", "He's just another rat", "Where'd the food come from"],
-        2,
-        "You're fantastic. He's just another rat.",
+        (["Presentation", "Summary"], ["pptx", "docx"]),
+        [("Presentation", "pptx"), ("Summary", "docx")],
     ),
 ]
 
 submit_cases = run_cases + [
-    (["I'm not different"], 0, ""),
+    (([], []), []),
+    ((["Test", "Example"], ["ppt", "docx"]), [("Test", "ppt"), ("Example", "docx")]),
     (
+        (
+            ["Python Cheatsheet", "Java Cheatsheet", "Malware", "Golang Cheatsheet"],
+            ["pdf", "docx", "trash", "docx"],
+        ),
         [
-            "You wrote a bad song",
-            "This is a good idea",
-            "Just buy the tree",
-            "It's going to flood",
-            "Tell us what to do",
-            "Here comes the train",
-            "Are you cussing with me?",
-            "This is just cider",
-            "Get me a bandit hat",
+            ("Python Cheatsheet", "pdf"),
+            ("Java Cheatsheet", "docx"),
+            ("Golang Cheatsheet", "docx"),
         ],
-        3,
-        "You wrote a bad song. This is a good idea. Just buy the tree.",
     ),
 ]
 
 
-def test(input_sentences, input_n, expected_output):
+def test(input1, expected_output):
     print("---------------------------------")
-    print("Inputs:")
-    print(f" * sentences: {input_sentences}")
-    print(f" * n: {input_n}")
-    print("Expected:")
-    print(f" * {expected_output}")
-    result = join_first_sentences(input_sentences, input_n)
-    print("Actual:")
-    print(f" * {result}")
+    print(f"Inputs:")
+    print(f" * doc_names: {input1[0]}")
+    print(f" * doc_formats: {input1[1]}")
+    print(f"Expected: {expected_output}")
+    try:
+        result = pair_document_with_format(*input1)
+    except Exception as e:
+        result = f"Error: {e}"
+    print(f"Actual:   {result}")
     if result == expected_output:
         print("Pass")
         return True
@@ -75,4 +71,3 @@ if "__RUN__" in globals():
     test_cases = run_cases
 
 main()
-

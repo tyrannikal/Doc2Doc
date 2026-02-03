@@ -17,6 +17,7 @@ from main import (
     is_hexadecimal,
     join,
     join_first_sentences,
+    pair_document_with_format,
     remove_invalid_lines,
     stylize_title,
 )
@@ -409,3 +410,40 @@ class TestJoinFirstSentences:
         """Test when n exceeds list length."""
         sentences = ["One", "Two"]
         assert join_first_sentences(sentences, 5) == "One. Two."
+
+
+class TestPairDocumentWithFormat:
+    """Tests for pair_document_with_format function."""
+
+    def test_pairs_valid_formats(self) -> None:
+        """Test pairing documents with valid formats."""
+        names = ["doc1", "doc2", "doc3"]
+        formats = ["pdf", "docx", "txt"]
+        result = pair_document_with_format(names, formats)
+        assert result == [("doc1", "pdf"), ("doc2", "docx"), ("doc3", "txt")]
+
+    def test_filters_invalid_formats(self) -> None:
+        """Test that invalid formats are filtered out."""
+        names = ["doc1", "doc2", "doc3"]
+        formats = ["pdf", "xyz", "txt"]
+        result = pair_document_with_format(names, formats)
+        assert result == [("doc1", "pdf"), ("doc3", "txt")]
+
+    def test_all_invalid_formats(self) -> None:
+        """Test with all invalid formats returns empty list."""
+        names = ["doc1", "doc2"]
+        formats = ["invalid", "unknown"]
+        result = pair_document_with_format(names, formats)
+        assert not result
+
+    def test_empty_lists(self) -> None:
+        """Test with empty input lists."""
+        result = pair_document_with_format([], [])
+        assert not result
+
+    def test_all_valid_format_types(self) -> None:
+        """Test all valid format types are accepted."""
+        names = ["a", "b", "c", "d", "e", "f"]
+        formats = ["docx", "pdf", "txt", "pptx", "ppt", "md"]
+        result = pair_document_with_format(names, formats)
+        assert len(result) == 6
