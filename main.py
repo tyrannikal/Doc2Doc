@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from functools import reduce
 
 HEX_COLOR_LENGTH = 6
 
@@ -95,3 +96,11 @@ def convert_line(line: str) -> str:
 def remove_invalid_lines(document: str) -> str:
     lines = document.split("\n")
     return "\n".join(list(filter(lambda line: not line.startswith("-"), lines)))
+
+
+def join(doc_so_far: str, sentence: str) -> str:
+    return f"{doc_so_far}. {sentence}"
+
+
+def join_first_sentences(sentences: list[str], n: int) -> str:
+    return f"{reduce(join, sentences[:n])}." if n else ""

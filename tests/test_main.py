@@ -15,6 +15,8 @@ from main import (
     get_median_font_size,
     hex_to_rgb,
     is_hexadecimal,
+    join,
+    join_first_sentences,
     remove_invalid_lines,
     stylize_title,
 )
@@ -358,3 +360,52 @@ class TestRemoveInvalidLines:
         doc = "\n* We are the music makers\n- And we are the dreamers\n* Come with me\n"
         expected = "\n* We are the music makers\n* Come with me\n"
         assert remove_invalid_lines(doc) == expected
+
+
+class TestJoin:
+    """Tests for join function."""
+
+    def test_joins_two_strings(self) -> None:
+        """Test that two strings are joined with period and space."""
+        assert join("Hello", "World") == "Hello. World"
+
+    def test_joins_with_existing_content(self) -> None:
+        """Test joining to existing multi-sentence content."""
+        assert join("First. Second", "Third") == "First. Second. Third"
+
+    def test_empty_first_string(self) -> None:
+        """Test joining with empty first string."""
+        assert join("", "Second") == ". Second"
+
+    def test_empty_second_string(self) -> None:
+        """Test joining with empty second string."""
+        assert join("First", "") == "First. "
+
+
+class TestJoinFirstSentences:
+    """Tests for join_first_sentences function."""
+
+    def test_joins_first_n_sentences(self) -> None:
+        """Test joining first n sentences from list."""
+        sentences = ["First", "Second", "Third", "Fourth"]
+        assert join_first_sentences(sentences, 2) == "First. Second."
+
+    def test_n_equals_zero_returns_empty(self) -> None:
+        """Test that n=0 returns empty string."""
+        sentences = ["First", "Second"]
+        assert join_first_sentences(sentences, 0) == ""
+
+    def test_single_sentence(self) -> None:
+        """Test with n=1."""
+        sentences = ["Only one", "Not included"]
+        assert join_first_sentences(sentences, 1) == "Only one."
+
+    def test_all_sentences(self) -> None:
+        """Test joining all sentences."""
+        sentences = ["A", "B", "C"]
+        assert join_first_sentences(sentences, 3) == "A. B. C."
+
+    def test_n_greater_than_list_length(self) -> None:
+        """Test when n exceeds list length."""
+        sentences = ["One", "Two"]
+        assert join_first_sentences(sentences, 5) == "One. Two."

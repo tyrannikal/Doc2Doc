@@ -1,43 +1,51 @@
-
 from main import *
 
 run_cases = [
     (
-        "\n* We are the music makers\n- And we are the dreamers of dreams\n* Come with me and you'll be\n",
-        "\n* We are the music makers\n* Come with me and you'll be\n",
+        ["I don't feel safe", "Are you cussing with me"],
+        2,
+        "I don't feel safe. Are you cussing with me.",
     ),
     (
-        "\n* In a world of pure imagination\n- There is no life I know\n* Living there - you'll be free\n",
-        "\n* In a world of pure imagination\n* Living there - you'll be free\n",
+        ["You're fantastic", "He's just another rat", "Where'd the food come from"],
+        2,
+        "You're fantastic. He's just another rat.",
     ),
 ]
 
 submit_cases = run_cases + [
+    (["I'm not different"], 0, ""),
     (
-        "\n* If you want to view paradise\n- Simply look around and view it\n* Anything you want to, do it\n* There is no life I know\n- To compare with pure imagination\n* Living there, you'll be free\n",
-        "\n* If you want to view paradise\n* Anything you want to, do it\n* There is no life I know\n* Living there, you'll be free\n",
+        [
+            "You wrote a bad song",
+            "This is a good idea",
+            "Just buy the tree",
+            "It's going to flood",
+            "Tell us what to do",
+            "Here comes the train",
+            "Are you cussing with me?",
+            "This is just cider",
+            "Get me a bandit hat",
+        ],
+        3,
+        "You wrote a bad song. This is a good idea. Just buy the tree.",
     ),
 ]
 
 
-def test(input_document, expected_output):
+def test(input_sentences, input_n, expected_output):
     print("---------------------------------")
-    print("Input document:")
-    print('"' + input_document + '"')
-    print("Expected output:")
-    print('"' + expected_output + '"')
-    result = remove_invalid_lines(input_document)
-    print("Actual output:")
-    print('"' + str(result) + '"')
+    print("Inputs:")
+    print(f" * sentences: {input_sentences}")
+    print(f" * n: {input_n}")
+    print("Expected:")
+    print(f" * {expected_output}")
+    result = join_first_sentences(input_sentences, input_n)
+    print("Actual:")
+    print(f" * {result}")
     if result == expected_output:
         print("Pass")
         return True
-
-    if expected_output.endswith("\n") and not str(result).endswith("\n"):
-        print("Fail")
-        print("Reason: expected newline at the end of the output")
-        return False
-
     print("Fail")
     return False
 
@@ -67,3 +75,4 @@ if "__RUN__" in globals():
     test_cases = run_cases
 
 main()
+
