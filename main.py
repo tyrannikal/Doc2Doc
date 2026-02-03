@@ -3,15 +3,6 @@ from functools import reduce
 
 HEX_COLOR_LENGTH = 6
 
-valid_formats = [
-    "docx",
-    "pdf",
-    "txt",
-    "pptx",
-    "ppt",
-    "md",
-]
-
 
 def stylize_title(document: str) -> str:
     return document.replace(document, add_border(center_title(document)))
@@ -118,9 +109,10 @@ def join_first_sentences(sentences: list[str], n: int) -> str:
 def pair_document_with_format(
     doc_names: list[str], doc_formats: list[str]
 ) -> list[tuple[str, str]]:
+    valid_extensions = ["docx", "pdf", "txt", "pptx", "ppt", "md"]
     return list(
         filter(
-            lambda valid_tuple: valid_tuple[1] in valid_formats,
+            lambda valid_tuple: valid_tuple[1] in valid_extensions,
             list(zip(doc_names, doc_formats, strict=True)),
         )
     )
@@ -132,3 +124,22 @@ def restore_documents(originals: tuple[str, ...], backups: tuple[str, ...]) -> s
             lambda good_doc: not good_doc.isdigit(), map(str.upper, originals + backups)
         )
     )
+
+
+def convert_file_format(filename: str, target_format: str) -> str | None:
+    current_format = filename.split(".")[-1]
+    valid_extensions = ["docx", "pdf", "txt", "pptx", "ppt", "md"]
+    valid_conversions = {
+        "docx": ["pdf", "txt", "md"],
+        "pdf": ["docx", "txt", "md"],
+        "txt": ["docx", "pdf", "md"],
+        "pptx": ["ppt", "pdf"],
+        "ppt": ["pptx", "pdf"],
+        "md": ["docx", "pdf", "txt"],
+    }
+    if (
+        current_format in valid_extensions
+        and target_format in valid_conversions[current_format]
+    ):
+        return filename.replace(current_format, target_format)
+    return None

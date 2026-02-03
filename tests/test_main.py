@@ -8,6 +8,7 @@ from main import (
     center_title,
     change_bullet_style,
     choose_parser,
+    convert_file_format,
     convert_line,
     file_to_prompt,
     file_type_getter,
@@ -485,3 +486,61 @@ class TestRestoreDocuments:
         backups = ("123",)
         result = restore_documents(originals, backups)
         assert result == {"FILE1", "2FILE", "F1L3"}
+
+
+class TestConvertFileFormat:
+    """Tests for convert_file_format function."""
+
+    def test_docx_to_pdf(self) -> None:
+        """Test converting docx to pdf."""
+        assert convert_file_format("document.docx", "pdf") == "document.pdf"
+
+    def test_docx_to_txt(self) -> None:
+        """Test converting docx to txt."""
+        assert convert_file_format("file.docx", "txt") == "file.txt"
+
+    def test_docx_to_md(self) -> None:
+        """Test converting docx to md."""
+        assert convert_file_format("file.docx", "md") == "file.md"
+
+    def test_pdf_conversions(self) -> None:
+        """Test valid pdf conversions."""
+        assert convert_file_format("file.pdf", "docx") == "file.docx"
+        assert convert_file_format("file.pdf", "txt") == "file.txt"
+        assert convert_file_format("file.pdf", "md") == "file.md"
+
+    def test_txt_conversions(self) -> None:
+        """Test valid txt conversions."""
+        assert convert_file_format("file.txt", "docx") == "file.docx"
+        assert convert_file_format("file.txt", "pdf") == "file.pdf"
+        assert convert_file_format("file.txt", "md") == "file.md"
+
+    def test_pptx_conversions(self) -> None:
+        """Test valid pptx conversions."""
+        assert convert_file_format("slides.pptx", "ppt") == "slides.ppt"
+        assert convert_file_format("slides.pptx", "pdf") == "slides.pdf"
+
+    def test_ppt_conversions(self) -> None:
+        """Test valid ppt conversions."""
+        assert convert_file_format("slides.ppt", "pptx") == "slides.pptx"
+        assert convert_file_format("slides.ppt", "pdf") == "slides.pdf"
+
+    def test_md_conversions(self) -> None:
+        """Test valid md conversions."""
+        assert convert_file_format("readme.md", "docx") == "readme.docx"
+        assert convert_file_format("readme.md", "pdf") == "readme.pdf"
+        assert convert_file_format("readme.md", "txt") == "readme.txt"
+
+    def test_invalid_source_format(self) -> None:
+        """Test with invalid source format returns None."""
+        assert convert_file_format("file.xyz", "pdf") is None
+        assert convert_file_format("file.jpg", "docx") is None
+
+    def test_invalid_target_format(self) -> None:
+        """Test with invalid target format returns None."""
+        assert convert_file_format("file.docx", "pptx") is None
+        assert convert_file_format("file.pptx", "docx") is None
+
+    def test_same_format_returns_none(self) -> None:
+        """Test converting to same format returns None."""
+        assert convert_file_format("file.pdf", "pdf") is None

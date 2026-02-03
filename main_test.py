@@ -1,49 +1,37 @@
-from main import *
+import main as main_
 
 run_cases = [
-    (
-        (
-            ("Mortgage", "Marriage Certificate", "Boot.dev Certificate"),
-            ("VEHICLE TITLE", "MORTGAGE"),
-        ),
-        {"MORTGAGE", "MARRIAGE CERTIFICATE", "BOOT.DEV CERTIFICATE", "VEHICLE TITLE"},
-    ),
-    (
-        (
-            ("ANNUITY", "WATER BILL"),
-            ("Photo Album", "1235023451345", "Year Book"),
-        ),
-        {"ANNUITY", "WATER BILL", "PHOTO ALBUM", "YEAR BOOK"},
-    ),
+    ("Proposal.docx", "pdf", "Proposal.pdf"),
+    ("Invoice.txt", "md", "Invoice.md"),
 ]
 
 submit_cases = run_cases + [
-    (((), ()), set()),
-    (
-        (
-            ("RECEIPT FOR 1st AND LAST RENT", "School Loan"),
-            ("SCOOTER REGISTRATION", "314159", "ENGLISH MAJOR DEGREE"),
-        ),
-        {
-            "RECEIPT FOR 1ST AND LAST RENT",
-            "SCHOOL LOAN",
-            "SCOOTER REGISTRATION",
-            "ENGLISH MAJOR DEGREE",
-        },
-    ),
+    ("Presentation.ppt", "pptx", "Presentation.pptx"),
+    ("Intro.pptx", "jpeg", None),
+    ("Summary.md", "txt", "Summary.txt"),
+    ("Contract.pdf", "pdoof", None),
 ]
 
 
-def test(input1, expected_output):
+def mutate_globals():
+    main_.valid_extensions = ["docx", "txt", "pptx", "ppt", "md"]
+    main_.valid_conversions = {
+        "docx": ["jpeg"],
+        "pdf": ["docx", "txt", "md"],
+        "txt": ["docx"],
+        "ppt": ["pptx", "jpeg"],
+        "md": ["png"],
+        "jpeg": ["png"],
+    }
+
+
+def test(input1, input2, expected_output):
     print("---------------------------------")
     print(f"Inputs:")
-    print(f" * damaged documents: {input1[0]}")
-    print(f" * back-up documents: {input1[1]}")
+    print(f" * filename: {input1}")
+    print(f" * target_format: {input2}")
     print(f"Expected: {expected_output}")
-    try:
-        result = restore_documents(*input1)
-    except Exception as e:
-        result = f"Error: {e}"
+    result = main_.convert_file_format(input1, input2)
     print(f"Actual:   {result}")
     if result == expected_output:
         print("Pass")
@@ -55,6 +43,7 @@ def test(input1, expected_output):
 def main():
     passed = 0
     failed = 0
+    mutate_globals()
     skipped = len(submit_cases) - len(test_cases)
     for test_case in test_cases:
         correct = test(*test_case)
