@@ -4,6 +4,7 @@ import pytest
 
 from main import (
     add_border,
+    add_format,
     add_prefix,
     center_title,
     change_bullet_style,
@@ -19,6 +20,7 @@ from main import (
     join,
     join_first_sentences,
     pair_document_with_format,
+    remove_format,
     remove_invalid_lines,
     restore_documents,
     stylize_title,
@@ -544,3 +546,71 @@ class TestConvertFileFormat:
     def test_same_format_returns_none(self) -> None:
         """Test converting to same format returns None."""
         assert convert_file_format("file.pdf", "pdf") is None
+
+
+class TestAddFormat:
+    """Tests for add_format function."""
+
+    def test_adds_new_format(self) -> None:
+        """Test adding a new format to existing dict."""
+        formats = {"docx": True, "pdf": True}
+        result = add_format(formats, "txt")
+        assert result == {"docx": True, "pdf": True, "txt": True}
+
+    def test_overwrites_existing_false_value(self) -> None:
+        """Test adding a format that exists with False sets it to True."""
+        formats = {"docx": False, "pdf": True}
+        result = add_format(formats, "docx")
+        assert result == {"docx": True, "pdf": True}
+
+    def test_adds_to_empty_dict(self) -> None:
+        """Test adding format to empty dict."""
+        result = add_format({}, "docx")
+        assert result == {"docx": True}
+
+    def test_does_not_mutate_original(self) -> None:
+        """Test that original dict is not modified."""
+        formats = {"docx": True, "pdf": False}
+        original_copy = formats.copy()
+        add_format(formats, "txt")
+        assert formats == original_copy
+
+    def test_existing_true_value_unchanged(self) -> None:
+        """Test adding a format that already exists with True."""
+        formats = {"docx": True, "pdf": True}
+        result = add_format(formats, "docx")
+        assert result == {"docx": True, "pdf": True}
+
+
+class TestRemoveFormat:
+    """Tests for remove_format function."""
+
+    def test_removes_existing_format(self) -> None:
+        """Test removing an existing format sets it to False."""
+        formats = {"docx": True, "pdf": True}
+        result = remove_format(formats, "pdf")
+        assert result == {"docx": True, "pdf": False}
+
+    def test_removes_already_false_format(self) -> None:
+        """Test removing a format that is already False."""
+        formats = {"docx": True, "pdf": False}
+        result = remove_format(formats, "pdf")
+        assert result == {"docx": True, "pdf": False}
+
+    def test_removes_nonexistent_format(self) -> None:
+        """Test removing a format that doesn't exist creates it as False."""
+        formats = {"docx": True}
+        result = remove_format(formats, "pdf")
+        assert result == {"docx": True, "pdf": False}
+
+    def test_does_not_mutate_original(self) -> None:
+        """Test that original dict is not modified."""
+        formats = {"docx": True, "pdf": True}
+        original_copy = formats.copy()
+        remove_format(formats, "pdf")
+        assert formats == original_copy
+
+    def test_removes_from_empty_dict(self) -> None:
+        """Test removing from empty dict creates entry with False."""
+        result = remove_format({}, "docx")
+        assert result == {"docx": False}

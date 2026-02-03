@@ -143,3 +143,15 @@ def convert_file_format(filename: str, target_format: str) -> str | None:
     ):
         return filename.replace(current_format, target_format)
     return None
+
+
+def add_format(default_formats: dict[str, bool], new_format: str) -> dict[str, bool]:
+    formats_updated = default_formats.copy()
+    formats_updated[new_format] = True
+    return formats_updated
+
+
+def remove_format(default_formats: dict[str, bool], old_format: str) -> dict[str, bool]:
+    formats_updated = default_formats.copy()
+    formats_updated[old_format] = False
+    return formats_updated
