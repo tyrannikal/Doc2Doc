@@ -2,28 +2,34 @@ from main import *
 
 run_cases = [
     (
-        (["Proposal", "Invoice", "Contract"], ["docx", "pdoof", "txt"]),
-        [("Proposal", "docx"), ("Contract", "txt")],
+        (
+            ("Mortgage", "Marriage Certificate", "Boot.dev Certificate"),
+            ("VEHICLE TITLE", "MORTGAGE"),
+        ),
+        {"MORTGAGE", "MARRIAGE CERTIFICATE", "BOOT.DEV CERTIFICATE", "VEHICLE TITLE"},
     ),
     (
-        (["Presentation", "Summary"], ["pptx", "docx"]),
-        [("Presentation", "pptx"), ("Summary", "docx")],
+        (
+            ("ANNUITY", "WATER BILL"),
+            ("Photo Album", "1235023451345", "Year Book"),
+        ),
+        {"ANNUITY", "WATER BILL", "PHOTO ALBUM", "YEAR BOOK"},
     ),
 ]
 
 submit_cases = run_cases + [
-    (([], []), []),
-    ((["Test", "Example"], ["ppt", "docx"]), [("Test", "ppt"), ("Example", "docx")]),
+    (((), ()), set()),
     (
         (
-            ["Python Cheatsheet", "Java Cheatsheet", "Malware", "Golang Cheatsheet"],
-            ["pdf", "docx", "trash", "docx"],
+            ("RECEIPT FOR 1st AND LAST RENT", "School Loan"),
+            ("SCOOTER REGISTRATION", "314159", "ENGLISH MAJOR DEGREE"),
         ),
-        [
-            ("Python Cheatsheet", "pdf"),
-            ("Java Cheatsheet", "docx"),
-            ("Golang Cheatsheet", "docx"),
-        ],
+        {
+            "RECEIPT FOR 1ST AND LAST RENT",
+            "SCHOOL LOAN",
+            "SCOOTER REGISTRATION",
+            "ENGLISH MAJOR DEGREE",
+        },
     ),
 ]
 
@@ -31,11 +37,11 @@ submit_cases = run_cases + [
 def test(input1, expected_output):
     print("---------------------------------")
     print(f"Inputs:")
-    print(f" * doc_names: {input1[0]}")
-    print(f" * doc_formats: {input1[1]}")
+    print(f" * damaged documents: {input1[0]}")
+    print(f" * back-up documents: {input1[1]}")
     print(f"Expected: {expected_output}")
     try:
-        result = pair_document_with_format(*input1)
+        result = restore_documents(*input1)
     except Exception as e:
         result = f"Error: {e}"
     print(f"Actual:   {result}")

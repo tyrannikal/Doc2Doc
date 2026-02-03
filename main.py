@@ -124,3 +124,11 @@ def pair_document_with_format(
             list(zip(doc_names, doc_formats, strict=True)),
         )
     )
+
+
+def restore_documents(originals: tuple[str, ...], backups: tuple[str, ...]) -> set[str]:
+    return set(
+        filter(
+            lambda good_doc: not good_doc.isdigit(), map(str.upper, originals + backups)
+        )
+    )

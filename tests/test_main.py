@@ -19,6 +19,7 @@ from main import (
     join_first_sentences,
     pair_document_with_format,
     remove_invalid_lines,
+    restore_documents,
     stylize_title,
 )
 
@@ -447,3 +448,40 @@ class TestPairDocumentWithFormat:
         formats = ["docx", "pdf", "txt", "pptx", "ppt", "md"]
         result = pair_document_with_format(names, formats)
         assert len(result) == 6
+
+
+class TestRestoreDocuments:
+    """Tests for restore_documents function."""
+
+    def test_combines_and_uppercases(self) -> None:
+        """Test that originals and backups are combined and uppercased."""
+        originals = ("doc1", "doc2")
+        backups = ("doc3",)
+        result = restore_documents(originals, backups)
+        assert result == {"DOC1", "DOC2", "DOC3"}
+
+    def test_filters_digit_only_strings(self) -> None:
+        """Test that digit-only strings are filtered out."""
+        originals = ("doc1", "123", "456")
+        backups = ("doc2", "789")
+        result = restore_documents(originals, backups)
+        assert result == {"DOC1", "DOC2"}
+
+    def test_empty_tuples(self) -> None:
+        """Test with empty input tuples."""
+        result = restore_documents((), ())
+        assert not result
+
+    def test_returns_set_no_duplicates(self) -> None:
+        """Test that duplicates are removed (set behavior)."""
+        originals = ("doc", "DOC")
+        backups = ("Doc",)
+        result = restore_documents(originals, backups)
+        assert result == {"DOC"}
+
+    def test_mixed_alphanumeric_preserved(self) -> None:
+        """Test that strings with mixed alphanumeric are preserved."""
+        originals = ("file1", "2file", "f1l3")
+        backups = ("123",)
+        result = restore_documents(originals, backups)
+        assert result == {"FILE1", "2FILE", "F1L3"}
