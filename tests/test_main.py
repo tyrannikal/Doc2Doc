@@ -6,13 +6,16 @@ from main import (
     add_border,
     add_prefix,
     center_title,
+    change_bullet_style,
     choose_parser,
+    convert_line,
     file_to_prompt,
     file_type_getter,
     format_line,
     get_median_font_size,
     hex_to_rgb,
     is_hexadecimal,
+    remove_invalid_lines,
     stylize_title,
 )
 
@@ -274,3 +277,84 @@ class TestFileTypeGetter:
         getter = file_type_getter([("Spreadsheet", ["xls", "xlsx", "csv"])])
         assert getter("xls") == "Spreadsheet"
         assert getter("csv") == "Spreadsheet"
+
+
+class TestConvertLine:
+    """Tests for convert_line function."""
+
+    def test_converts_dash_to_asterisk(self) -> None:
+        """Test that dash bullet is converted to asterisk."""
+        assert convert_line("- item") == "* item"
+
+    def test_preserves_non_bullet_lines(self) -> None:
+        """Test that non-bullet lines are unchanged."""
+        assert convert_line("regular line") == "regular line"
+        assert convert_line("* already asterisk") == "* already asterisk"
+
+    def test_empty_line(self) -> None:
+        """Test that empty line is unchanged."""
+        assert convert_line("") == ""
+
+    def test_dash_not_at_start(self) -> None:
+        """Test that dash not at start is unchanged."""
+        assert convert_line("text - with dash") == "text - with dash"
+
+
+class TestChangeBulletStyle:
+    """Tests for change_bullet_style function."""
+
+    def test_converts_all_dash_bullets(self) -> None:
+        """Test that all dash bullets are converted."""
+        doc = "- item 1\n- item 2\n- item 3"
+        expected = "* item 1\n* item 2\n* item 3"
+        assert change_bullet_style(doc) == expected
+
+    def test_preserves_non_bullet_lines(self) -> None:
+        """Test mixed content with non-bullet lines."""
+        doc = "Title\n- item 1\nParagraph\n- item 2"
+        expected = "Title\n* item 1\nParagraph\n* item 2"
+        assert change_bullet_style(doc) == expected
+
+    def test_empty_document(self) -> None:
+        """Test empty document."""
+        assert change_bullet_style("") == ""
+
+    def test_no_bullets(self) -> None:
+        """Test document with no bullets."""
+        doc = "Line 1\nLine 2"
+        assert change_bullet_style(doc) == doc
+
+
+class TestRemoveInvalidLines:
+    """Tests for remove_invalid_lines function."""
+
+    def test_removes_lines_starting_with_dash(self) -> None:
+        """Test that lines starting with dash are removed."""
+        doc = "valid line\n- invalid line\nanother valid"
+        expected = "valid line\nanother valid"
+        assert remove_invalid_lines(doc) == expected
+
+    def test_preserves_valid_lines(self) -> None:
+        """Test that non-dash lines are preserved."""
+        doc = "* bullet\nregular text\n  indented"
+        assert remove_invalid_lines(doc) == doc
+
+    def test_empty_document(self) -> None:
+        """Test empty document."""
+        assert remove_invalid_lines("") == ""
+
+    def test_all_invalid_lines(self) -> None:
+        """Test document with all invalid lines."""
+        doc = "- line 1\n- line 2\n- line 3"
+        assert remove_invalid_lines(doc) == ""
+
+    def test_dash_in_middle_of_line(self) -> None:
+        """Test that dash in middle of line doesn't remove it."""
+        doc = "text - with dash\nanother - line"
+        assert remove_invalid_lines(doc) == doc
+
+    def test_mixed_valid_and_invalid(self) -> None:
+        """Test mixed document with multiple invalid lines."""
+        doc = "\n* We are the music makers\n- And we are the dreamers\n* Come with me\n"
+        expected = "\n* We are the music makers\n* Come with me\n"
+        assert remove_invalid_lines(doc) == expected

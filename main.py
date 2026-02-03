@@ -77,3 +77,21 @@ def file_type_getter(
         for extension in doc_type[1]
     }
     return lambda found_type: ext_type_dict.get(found_type, "Unknown")
+
+
+def change_bullet_style(document: str) -> str:
+    lines: list[str] = document.split("\n")
+    return "\n".join(list(map(convert_line, lines)))
+
+
+def convert_line(line: str) -> str:
+    old_bullet: str = "-"
+    new_bullet: str = "*"
+    if len(line) > 0 and line[0] == old_bullet:
+        return new_bullet + line[1:]
+    return line
+
+
+def remove_invalid_lines(document: str) -> str:
+    lines = document.split("\n")
+    return "\n".join(list(filter(lambda line: not line.startswith("-"), lines)))
