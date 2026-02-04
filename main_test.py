@@ -2,62 +2,40 @@ from main import *
 
 run_cases = [
     (
-        {"docx": True, "pdf": True},
-        add_format,
-        "txt",
-        {"docx": True, "pdf": True, "txt": True},
+        "Through the darkness of future past",
+        "uppercase",
+        "THROUGH THE DARKNESS OF FUTURE PAST",
     ),
-    (
-        {"md": True, "txt": False},
-        add_format,
-        "ppt",
-        {"md": True, "txt": False, "ppt": True},
-    ),
-    ({"md": True, "txt": False}, remove_format, "md", {"md": False, "txt": False}),
+    ("The magician longs to see", "lowercase", "the magician longs to see"),
 ]
 
 submit_cases = run_cases + [
-    ({}, add_format, "docx", {"docx": True}),
     (
-        {"docx": True, "pdf": True, "txt": False},
-        remove_format,
-        "pdf",
-        {"docx": True, "pdf": False, "txt": False},
+        "One chants out between two worlds",
+        "titlecase",
+        "One Chants Out Between Two Worlds",
     ),
-    (
-        {"docx": True, "pdf": True, "txt": False},
-        add_format,
-        "jpg",
-        {"docx": True, "pdf": True, "txt": False, "jpg": True},
-    ),
-    (
-        {"docx": False, "pdf": True, "txt": True},
-        add_format,
-        "docx",
-        {"docx": True, "pdf": True, "txt": True},
-    ),
+    ("Fire walk with me", "garbagecase", "unsupported format: garbagecase"),
 ]
 
 
-def test(input1, formatter, input2, expected_output):
+def test(input1, input2, expected_output):
     print("---------------------------------")
-    print(f"Inputs:")
-    print(f" * default_formats: {input1}")
-    print(f" * formatter: {formatter.__name__}")
-    print(f" * new_format: {input2}")
-    print(f"Expected: {expected_output}")
-    input1_copy = input1.copy()
-    result = formatter(input1, input2)
-    print(f"Actual:   {result}")
-    if result != expected_output:
-        print("Fail")
-        return False
-    if input1 != input1_copy:
-        print("Default_formats was mutated!")
-        print("Fail")
-        return False
-    print("Pass")
-    return True
+    print(f"Input:")
+    print(f'"{input1}", {input2}')
+    print(f"Expected:")
+    print(f'"{expected_output}"')
+    try:
+        result = convert_case(input1, input2)
+    except Exception as e:
+        result = str(e)
+    print(f"Actual:")
+    print(f'"{result}"')
+    if result == expected_output:
+        print("Pass")
+        return True
+    print("Fail")
+    return False
 
 
 def main():

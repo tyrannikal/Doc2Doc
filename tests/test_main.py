@@ -9,6 +9,7 @@ from main import (
     center_title,
     change_bullet_style,
     choose_parser,
+    convert_case,
     convert_file_format,
     convert_line,
     file_to_prompt,
@@ -614,3 +615,40 @@ class TestRemoveFormat:
         """Test removing from empty dict creates entry with False."""
         result = remove_format({}, "docx")
         assert result == {"docx": False}
+
+
+class TestConvertCase:
+    """Tests for convert_case function."""
+
+    def test_converts_to_uppercase(self) -> None:
+        """Test converting text to uppercase."""
+        assert convert_case("hello world", "uppercase") == "HELLO WORLD"
+
+    def test_converts_to_lowercase(self) -> None:
+        """Test converting text to lowercase."""
+        assert convert_case("HELLO WORLD", "lowercase") == "hello world"
+
+    def test_converts_to_titlecase(self) -> None:
+        """Test converting text to titlecase."""
+        assert convert_case("hello world", "titlecase") == "Hello World"
+
+    def test_empty_text_raises_error(self) -> None:
+        """Test that empty text raises ValueError."""
+        with pytest.raises(ValueError, match="no text or target format provided"):
+            convert_case("", "uppercase")
+
+    def test_empty_format_raises_error(self) -> None:
+        """Test that empty format raises ValueError."""
+        with pytest.raises(ValueError, match="no text or target format provided"):
+            convert_case("hello", "")
+
+    def test_unsupported_format_raises_error(self) -> None:
+        """Test that unsupported format raises ValueError."""
+        with pytest.raises(ValueError, match="unsupported format"):
+            convert_case("hello", "snakecase")
+
+    def test_mixed_case_input(self) -> None:
+        """Test converting mixed case input."""
+        assert convert_case("HeLLo WoRLd", "lowercase") == "hello world"
+        assert convert_case("HeLLo WoRLd", "uppercase") == "HELLO WORLD"
+        assert convert_case("hELLO wORLD", "titlecase") == "Hello World"
