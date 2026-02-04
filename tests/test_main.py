@@ -21,8 +21,11 @@ from main import (
     join,
     join_first_sentences,
     pair_document_with_format,
+    remove_emphasis,
     remove_format,
     remove_invalid_lines,
+    remove_line_emphasis,
+    remove_word_emphasis,
     restore_documents,
     stylize_title,
 )
@@ -652,3 +655,83 @@ class TestConvertCase:
         assert convert_case("HeLLo WoRLd", "lowercase") == "hello world"
         assert convert_case("HeLLo WoRLd", "uppercase") == "HELLO WORLD"
         assert convert_case("hELLO wORLD", "titlecase") == "Hello World"
+
+
+class TestRemoveWordEmphasis:
+    """Tests for remove_word_emphasis function."""
+
+    def test_removes_leading_asterisks(self) -> None:
+        """Test removing leading asterisks."""
+        assert remove_word_emphasis("*hello") == "hello"
+        assert remove_word_emphasis("**hello") == "hello"
+
+    def test_removes_trailing_asterisks(self) -> None:
+        """Test removing trailing asterisks."""
+        assert remove_word_emphasis("hello*") == "hello"
+        assert remove_word_emphasis("hello**") == "hello"
+
+    def test_removes_surrounding_asterisks(self) -> None:
+        """Test removing asterisks from both ends."""
+        assert remove_word_emphasis("*hello*") == "hello"
+        assert remove_word_emphasis("**hello**") == "hello"
+
+    def test_preserves_word_without_asterisks(self) -> None:
+        """Test word without asterisks is unchanged."""
+        assert remove_word_emphasis("hello") == "hello"
+
+    def test_empty_string(self) -> None:
+        """Test empty string returns empty string."""
+        assert remove_word_emphasis("") == ""
+
+    def test_only_asterisks(self) -> None:
+        """Test string of only asterisks returns empty string."""
+        assert remove_word_emphasis("***") == ""
+
+
+class TestRemoveLineEmphasis:
+    """Tests for remove_line_emphasis function."""
+
+    def test_removes_emphasis_from_words(self) -> None:
+        """Test removing emphasis from multiple words."""
+        assert remove_line_emphasis("*hello* *world*") == "hello world"
+
+    def test_mixed_emphasis_and_plain(self) -> None:
+        """Test line with mix of emphasized and plain words."""
+        assert remove_line_emphasis("*bold* plain **strong**") == "bold plain strong"
+
+    def test_empty_line(self) -> None:
+        """Test empty line returns empty string."""
+        assert remove_line_emphasis("") == ""
+
+    def test_no_emphasis(self) -> None:
+        """Test line without emphasis is unchanged."""
+        assert remove_line_emphasis("hello world") == "hello world"
+
+
+class TestRemoveEmphasis:
+    """Tests for remove_emphasis function."""
+
+    def test_removes_emphasis_from_document(self) -> None:
+        """Test removing emphasis from multi-line document."""
+        doc = "*hello* world\n**bold** text"
+        expected = "hello world\nbold text"
+        assert remove_emphasis(doc) == expected
+
+    def test_empty_document(self) -> None:
+        """Test empty document returns empty string."""
+        assert remove_emphasis("") == ""
+
+    def test_single_line(self) -> None:
+        """Test single line document."""
+        assert remove_emphasis("*emphasized*") == "emphasized"
+
+    def test_no_emphasis(self) -> None:
+        """Test document without emphasis is unchanged."""
+        doc = "plain text\nanother line"
+        assert remove_emphasis(doc) == doc
+
+    def test_multiple_lines_with_mixed_content(self) -> None:
+        """Test multiple lines with various emphasis patterns."""
+        doc = "Title\n*italic* and **bold**\nplain line"
+        expected = "Title\nitalic and bold\nplain line"
+        assert remove_emphasis(doc) == expected

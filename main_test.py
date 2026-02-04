@@ -1,36 +1,55 @@
-from main import *
+from main import remove_emphasis
 
-run_cases = [
+TestCase = tuple[str, str]
+
+run_cases: list[TestCase] = [
+    ("*Don't* panic.\n", "Don't panic.\n"),
     (
-        "Through the darkness of future past",
-        "uppercase",
-        "THROUGH THE DARKNESS OF FUTURE PAST",
+        "The **answer to the ultimate question** of life, the universe and everything is *42*\n",
+        "The answer to the ultimate question of life, the universe and everything is 42\n",
     ),
-    ("The magician longs to see", "lowercase", "the magician longs to see"),
+    (
+        "For a moment, *nothing* happened.\nThen, after a second or so, nothing **continued** to happen.\n",
+        "For a moment, nothing happened.\nThen, after a second or so, nothing continued to happen.\n",
+    ),
 ]
 
-submit_cases = run_cases + [
+submit_cases: list[TestCase] = run_cases + [
+    ("", ""),
     (
-        "One chants out between two worlds",
-        "titlecase",
-        "One Chants Out Between Two Worlds",
+        "The Hitchhiker's Guide is a d*mn **useful** book.\n",
+        "The Hitchhiker's Guide is a d*mn useful book.\n",
     ),
-    ("Fire walk with me", "garbagecase", "unsupported format: garbagecase"),
+    (
+        "In the beginning the *universe* was created.\nThis has made a lot of people very *angry* and been widely regarded as a bad move.\n",
+        "In the beginning the universe was created.\nThis has made a lot of people very angry and been widely regarded as a bad move.\n",
+    ),
+    (
+        "Ford, you're turning into a *penguin*\n",
+        "Ford, you're turning into a penguin\n",
+    ),
+    (
+        "*Space* is big.\nYou just won't **believe** how vastly, hugely, mind-bogglingly big it is.\n",
+        "Space is big.\nYou just won't believe how vastly, hugely, mind-bogglingly big it is.\n",
+    ),
+    (
+        "***Life before death, journey before destination.***\n",
+        "Life before death, journey before destination.\n",
+    ),
 ]
 
 
-def test(input1, input2, expected_output):
+def test(input_doc: str, expected_output: str) -> bool:
     print("---------------------------------")
-    print(f"Input:")
-    print(f'"{input1}", {input2}')
-    print(f"Expected:")
-    print(f'"{expected_output}"')
+    print(f"Input document:\n{input_doc}")
+    print(f"Expected output:\n{expected_output}")
     try:
-        result = convert_case(input1, input2)
+        result = remove_emphasis(input_doc)
     except Exception as e:
-        result = str(e)
-    print(f"Actual:")
-    print(f'"{result}"')
+        print(f"Exception raised: {e}")
+        print("Fail")
+        return False
+    print(f"Actual output:\n{result}")
     if result == expected_output:
         print("Pass")
         return True
@@ -38,7 +57,7 @@ def test(input1, input2, expected_output):
     return False
 
 
-def main():
+def main() -> None:
     passed = 0
     failed = 0
     skipped = len(submit_cases) - len(test_cases)
@@ -58,7 +77,7 @@ def main():
         print(f"{passed} passed, {failed} failed")
 
 
-test_cases = submit_cases
+test_cases: list[TestCase] = submit_cases
 if "__RUN__" in globals():
     test_cases = run_cases
 

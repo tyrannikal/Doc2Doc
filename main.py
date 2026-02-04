@@ -168,3 +168,19 @@ def convert_case(text: str, target_format: str) -> str:
     if target_format == "titlecase":
         return text.title()
     raise ValueError(f"unsupported format: {target_format}")
+
+
+def remove_emphasis(doc: str) -> str:
+    lines = doc.split("\n")
+    new_lines = map(remove_line_emphasis, lines)
+    return "\n".join(new_lines)
+
+
+def remove_line_emphasis(line: str) -> str:
+    words = line.split()
+    new_words = map(remove_word_emphasis, words)
+    return " ".join(new_words)
+
+
+def remove_word_emphasis(word: str) -> str:
+    return word.strip("*")
