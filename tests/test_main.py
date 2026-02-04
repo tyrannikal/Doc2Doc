@@ -20,6 +20,7 @@ from main import (
     convert_line,
     file_to_prompt,
     file_type_getter,
+    format_date,
     format_line,
     get_median_font_size,
     hex_to_rgb,
@@ -34,6 +35,7 @@ from main import (
     remove_word_emphasis,
     restore_documents,
     save_document,
+    sort_dates,
     stylize_title,
     word_count,
     word_count_memo,
@@ -900,3 +902,49 @@ class TestAddLineBreak:
     def test_line_with_existing_newline(self) -> None:
         """Test adding line break to line that already has newline."""
         assert add_line_break("hello\n") == "hello\n\n\n"
+
+
+class TestFormatDate:
+    """Tests for format_date function."""
+
+    def test_converts_to_sortable_format(self) -> None:
+        """Test converting MM-DD-YYYY to YYYY-MM-DD."""
+        assert format_date("01-15-2024") == "2024-01-15"
+
+    def test_different_date(self) -> None:
+        """Test with different date values."""
+        assert format_date("12-31-1999") == "1999-12-31"
+
+    def test_zeroed_date(self) -> None:
+        """Test with zeroed date format."""
+        assert format_date("00-00-0000") == "0000-00-00"
+
+
+class TestSortDates:
+    """Tests for sort_dates function."""
+
+    def test_sorts_dates_chronologically(self) -> None:
+        """Test that dates are sorted in chronological order."""
+        dates = ["12-31-2024", "01-01-2020", "06-15-2022"]
+        result = sort_dates(dates)
+        assert result == ["01-01-2020", "06-15-2022", "12-31-2024"]
+
+    def test_empty_list(self) -> None:
+        """Test sorting empty list."""
+        assert sort_dates([]) == []
+
+    def test_single_date(self) -> None:
+        """Test sorting single date."""
+        assert sort_dates(["05-20-2023"]) == ["05-20-2023"]
+
+    def test_already_sorted(self) -> None:
+        """Test list that is already sorted."""
+        dates = ["01-01-2020", "01-01-2021", "01-01-2022"]
+        assert sort_dates(dates) == dates
+
+    def test_does_not_mutate_original(self) -> None:
+        """Test that original list is not modified."""
+        dates = ["12-31-2024", "01-01-2020"]
+        original_copy = dates.copy()
+        sort_dates(dates)
+        assert dates == original_copy

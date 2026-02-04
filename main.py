@@ -222,3 +222,11 @@ def save_document(docs: dict[str, str], file_name: str, doc: str) -> dict[str, s
 
 def add_line_break(line: str) -> str:
     return line + "\n\n"
+
+
+def sort_dates(dates: list[str]) -> list[str]:
+    return sorted(dates, key=format_date)
+
+
+def format_date(date: str) -> str:
+    return f"{date[6:]}-{date[:5]}"

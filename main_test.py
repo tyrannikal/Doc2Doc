@@ -3,99 +3,167 @@ from main import *
 
 run_cases = [
     (
-        ("add_format", add_format),
-        default_formats,
-        [("rtf",), ("csv",)],
-        ["txt", "md", "html", "rtf", "csv"],
-    ),
-    (
-        ("save_document", save_document),
-        saved_documents,
         [
-            ("My_Princess_Diaries.txt", "I can't be a princess!"),
-            (
-                "The_Devil_Wears_Boots.md",
-                "Please, bore someone else with your questions.",
-            ),
+            "07-21-2023",
+            "12-25-2022",
+            "01-01-2023",
+            "01-15-2023",
+            "10-31-2023",
+            "04-10-2023",
         ],
-        {
-            "My_Princess_Diaries.txt": "I can't be a princess!",
-            "The_Devil_Wears_Boots.md": "Please, bore someone else with your questions.",
-        },
+        [
+            "12-25-2022",
+            "01-01-2023",
+            "01-15-2023",
+            "04-10-2023",
+            "07-21-2023",
+            "10-31-2023",
+        ],
     ),
     (
-        ("add_line_break", add_line_break),
-        "It's not you, it's me.",
-        [()],
-        "It's not you, it's me.\n\n",
+        [
+            "08-17-2023",
+            "11-05-2022",
+            "02-28-2023",
+            "06-30-2023",
+            "09-19-2024",
+            "05-22-2023",
+        ],
+        [
+            "11-05-2022",
+            "02-28-2023",
+            "05-22-2023",
+            "06-30-2023",
+            "08-17-2023",
+            "09-19-2024",
+        ],
+    ),
+    (
+        [
+            "07-04-2023",
+            "12-01-2024",
+            "01-20-2023",
+            "03-10-2023",
+            "10-05-2023",
+            "04-25-2023",
+        ],
+        [
+            "01-20-2023",
+            "03-10-2023",
+            "04-25-2023",
+            "07-04-2023",
+            "10-05-2023",
+            "12-01-2024",
+        ],
+    ),
+    (
+        [
+            "08-12-2023",
+            "11-15-2022",
+            "02-10-2023",
+            "06-25-2023",
+            "09-05-2023",
+            "05-05-2023",
+        ],
+        [
+            "11-15-2022",
+            "02-10-2023",
+            "05-05-2023",
+            "06-25-2023",
+            "08-12-2023",
+            "09-05-2023",
+        ],
+    ),
+    (
+        [
+            "07-15-2024",
+            "12-18-2022",
+            "03-30-2023",
+            "03-20-2023",
+            "10-20-2023",
+            "04-05-2023",
+        ],
+        [
+            "12-18-2022",
+            "03-20-2023",
+            "03-30-2023",
+            "04-05-2023",
+            "10-20-2023",
+            "07-15-2024",
+        ],
     ),
 ]
 
 
 submit_cases = run_cases + [
     (
-        ("add_format", add_format),
-        default_formats,
         [
-            ("doc",),
-            ("docx",),
-            ("pdf",),
+            "08-22-2023",
+            "11-30-2022",
+            "02-05-2023",
+            "06-10-2023",
+            "09-25-2023",
+            "05-10-2023",
         ],
-        ["txt", "md", "html", "doc", "docx", "pdf"],
+        [
+            "11-30-2022",
+            "02-05-2023",
+            "05-10-2023",
+            "06-10-2023",
+            "08-22-2023",
+            "09-25-2023",
+        ],
     ),
     (
-        ("save_document", save_document),
-        saved_documents,
         [
-            ("Function_Club.txt", "The types you own end up owning you"),
-            ("Shrek.doc", "Functions are like onions."),
+            "07-10-2024",
+            "12-10-2022",
+            "01-25-2023",
+            "03-05-2023",
+            "10-15-2023",
+            "04-15-2023",
         ],
-        {
-            "Function_Club.txt": "The types you own end up owning you",
-            "Shrek.doc": "Functions are like onions.",
-        },
+        [
+            "12-10-2022",
+            "01-25-2023",
+            "03-05-2023",
+            "04-15-2023",
+            "10-15-2023",
+            "07-10-2024",
+        ],
     ),
     (
-        ("add_line_break", add_line_break),
-        "Go be free.",
-        [()],
-        "Go be free.\n\n",
+        [
+            "08-02-2023",
+            "11-25-2022",
+            "02-15-2024",
+            "06-05-2023",
+            "09-10-2023",
+            "05-01-2023",
+        ],
+        [
+            "11-25-2022",
+            "05-01-2023",
+            "06-05-2023",
+            "08-02-2023",
+            "09-10-2023",
+            "02-15-2024",
+        ],
     ),
 ]
 
 
-def test(input1, input2, input3, expected_output):
+def test(input1, expected_output):
     print("---------------------------------")
-    print(f"Inputs:")
-    print(f" * new command: {input1[0]}")
-    print(f" * starting input: {input2}")
-    result = input2
-    commands = default_commands
-    input2_length = len(input2)
-    default_commands_length = len(default_commands)
-
-    # add and test new command
-    commands = add_custom_command(commands, *input1)
-    for item in input3:
-        if len(item) > 0:
-            print(f" * input: {item}")
-        result = commands[input1[0]](result, *item)
-
-    # check result
-    print(f"Expected: '{expected_output}'")
-    print(f"Actual:   '{result}'")
-    if result == expected_output:
-        # check inputs not mutated
-        if len(input2) == input2_length:
-            if len(default_commands) == default_commands_length:
-                print("Pass")
-                return True
-            else:
-                print("default_commands modified")
-        else:
-            print("Starting input modified")
-    print("Fail")
-    return False
+    print(f"Input: {input1}")
+    print(f"Expected: {expected_output}")
+    result = sort_dates(input1)
+    print(f"  Actual: {result}")
+    if result != expected_output:
+        print("Fail")
+        return False
+    print("Pass")
+    return True
 
 
 def main():
@@ -123,3 +191,4 @@ if "__RUN__" in globals():
     test_cases = run_cases
 
 main()
+
