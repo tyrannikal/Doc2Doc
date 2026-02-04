@@ -1,7 +1,11 @@
 from collections.abc import Callable
 from functools import reduce
+from typing import Any
 
 HEX_COLOR_LENGTH = 6
+default_commands = {}
+default_formats = ["txt", "md", "html"]
+saved_documents = {}
 
 
 def stylize_title(document: str) -> str:
@@ -145,14 +149,8 @@ def convert_file_format(filename: str, target_format: str) -> str | None:
     return None
 
 
-def add_format(default_formats: dict[str, bool], new_format: str) -> dict[str, bool]:
-    formats_updated = default_formats.copy()
-    formats_updated[new_format] = True
-    return formats_updated
-
-
-def remove_format(default_formats: dict[str, bool], old_format: str) -> dict[str, bool]:
-    formats_updated = default_formats.copy()
+def remove_format(formats: dict[str, bool], old_format: str) -> dict[str, bool]:
+    formats_updated = formats.copy()
     formats_updated[old_format] = False
     return formats_updated
 
@@ -195,9 +193,32 @@ def word_count_memo(document: str, memos: dict[str, int]) -> tuple[int, dict[str
     return count, new_memos
 
 
-# Don't edit below this line
-
-
 def word_count(document: str) -> int:
     count = len(document.split())
     return count
+
+
+def add_custom_command(
+    commands: dict[str, Callable[..., Any]],
+    new_command: str,
+    function: Callable[..., Any],
+) -> dict[str, Callable[..., Any]]:
+    new_commands = commands.copy()
+    new_commands[new_command] = function
+    return new_commands
+
+
+def add_format(formats: list[str], fmt: str) -> list[str]:
+    new_formats = formats.copy()
+    new_formats.append(fmt)
+    return new_formats
+
+
+def save_document(docs: dict[str, str], file_name: str, doc: str) -> dict[str, str]:
+    new_docs = docs.copy()
+    new_docs[file_name] = doc
+    return new_docs
+
+
+def add_line_break(line: str) -> str:
+    return line + "\n\n"

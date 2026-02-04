@@ -1,10 +1,16 @@
 """Tests for main module."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
 
 from main import (
     add_border,
+    add_custom_command,
     add_format,
+    add_line_break,
     add_prefix,
     center_title,
     change_bullet_style,
@@ -27,10 +33,15 @@ from main import (
     remove_line_emphasis,
     remove_word_emphasis,
     restore_documents,
+    save_document,
     stylize_title,
     word_count,
     word_count_memo,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
 
 
 class TestCenterTitle:
@@ -557,35 +568,29 @@ class TestConvertFileFormat:
 class TestAddFormat:
     """Tests for add_format function."""
 
-    def test_adds_new_format(self) -> None:
-        """Test adding a new format to existing dict."""
-        formats = {"docx": True, "pdf": True}
+    def test_adds_format_to_list(self) -> None:
+        """Test adding a format to existing list."""
+        formats = ["docx", "pdf"]
         result = add_format(formats, "txt")
-        assert result == {"docx": True, "pdf": True, "txt": True}
+        assert result == ["docx", "pdf", "txt"]
 
-    def test_overwrites_existing_false_value(self) -> None:
-        """Test adding a format that exists with False sets it to True."""
-        formats = {"docx": False, "pdf": True}
-        result = add_format(formats, "docx")
-        assert result == {"docx": True, "pdf": True}
-
-    def test_adds_to_empty_dict(self) -> None:
-        """Test adding format to empty dict."""
-        result = add_format({}, "docx")
-        assert result == {"docx": True}
+    def test_adds_to_empty_list(self) -> None:
+        """Test adding format to empty list."""
+        result = add_format([], "docx")
+        assert result == ["docx"]
 
     def test_does_not_mutate_original(self) -> None:
-        """Test that original dict is not modified."""
-        formats = {"docx": True, "pdf": False}
+        """Test that original list is not modified."""
+        formats = ["docx", "pdf"]
         original_copy = formats.copy()
         add_format(formats, "txt")
         assert formats == original_copy
 
-    def test_existing_true_value_unchanged(self) -> None:
-        """Test adding a format that already exists with True."""
-        formats = {"docx": True, "pdf": True}
+    def test_allows_duplicate_formats(self) -> None:
+        """Test that duplicate formats can be added."""
+        formats = ["docx", "pdf"]
         result = add_format(formats, "docx")
-        assert result == {"docx": True, "pdf": True}
+        assert result == ["docx", "pdf", "docx"]
 
 
 class TestRemoveFormat:
@@ -800,3 +805,98 @@ class TestWordCountMemo:
         count, new_memos = word_count_memo("", memos)
         assert count == 0
         assert new_memos == {"": 0}
+
+
+class TestAddCustomCommand:
+    """Tests for add_custom_command function."""
+
+    def test_adds_command_to_dict(self) -> None:
+        """Test adding a new command to existing dict."""
+
+        def sample_func() -> str:
+            return "hello"
+
+        commands: dict[str, Callable[..., Any]] = {"existing": lambda: None}
+        result = add_custom_command(commands, "new_cmd", sample_func)
+        assert "new_cmd" in result
+        assert result["new_cmd"] is sample_func
+
+    def test_adds_to_empty_dict(self) -> None:
+        """Test adding command to empty dict."""
+
+        def sample_func() -> str:
+            return "hello"
+
+        commands: dict[str, Callable[..., Any]] = {}
+        result = add_custom_command(commands, "cmd", sample_func)
+        assert "cmd" in result
+        assert result["cmd"] is sample_func
+
+    def test_does_not_mutate_original(self) -> None:
+        """Test that original dict is not modified."""
+
+        def sample_func() -> str:
+            return "hello"
+
+        commands: dict[str, Callable[..., Any]] = {"existing": lambda: None}
+        original_keys = set(commands.keys())
+        add_custom_command(commands, "new_cmd", sample_func)
+        assert set(commands.keys()) == original_keys
+
+    def test_overwrites_existing_command(self) -> None:
+        """Test that adding a command with existing name overwrites it."""
+
+        def func1() -> str:
+            return "first"
+
+        def func2() -> str:
+            return "second"
+
+        commands: dict[str, Callable[..., Any]] = {"cmd": func1}
+        result = add_custom_command(commands, "cmd", func2)
+        assert result["cmd"] is func2
+
+
+class TestSaveDocument:
+    """Tests for save_document function."""
+
+    def test_saves_document_to_dict(self) -> None:
+        """Test saving a new document."""
+        docs: dict[str, str] = {}
+        result = save_document(docs, "file.txt", "content")
+        assert result == {"file.txt": "content"}
+
+    def test_preserves_existing_documents(self) -> None:
+        """Test that existing documents are preserved."""
+        docs = {"existing.txt": "old content"}
+        result = save_document(docs, "new.txt", "new content")
+        assert result == {"existing.txt": "old content", "new.txt": "new content"}
+
+    def test_does_not_mutate_original(self) -> None:
+        """Test that original dict is not modified."""
+        docs: dict[str, str] = {"file.txt": "content"}
+        original_copy = docs.copy()
+        save_document(docs, "new.txt", "new content")
+        assert docs == original_copy
+
+    def test_overwrites_existing_document(self) -> None:
+        """Test that saving with existing filename overwrites."""
+        docs = {"file.txt": "old content"}
+        result = save_document(docs, "file.txt", "new content")
+        assert result == {"file.txt": "new content"}
+
+
+class TestAddLineBreak:
+    """Tests for add_line_break function."""
+
+    def test_adds_double_newline(self) -> None:
+        """Test that double newline is added to line."""
+        assert add_line_break("hello") == "hello\n\n"
+
+    def test_empty_string(self) -> None:
+        """Test adding line break to empty string."""
+        assert add_line_break("") == "\n\n"
+
+    def test_line_with_existing_newline(self) -> None:
+        """Test adding line break to line that already has newline."""
+        assert add_line_break("hello\n") == "hello\n\n\n"

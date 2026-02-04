@@ -1,83 +1,101 @@
 from main import *
 
+
 run_cases = [
     (
-        "My hovercraft is full of eels",
-        {
-            "My hovercraft is full of eels": 6,
-            "He's a lumberjack and he's okay. He sleeps all night and he works all day": 15,
-        },
-        (
-            6,
-            {
-                "My hovercraft is full of eels": 6,
-                "He's a lumberjack and he's okay. He sleeps all night and he works all day": 15,
-            },
-        ),
+        ("add_format", add_format),
+        default_formats,
+        [("rtf",), ("csv",)],
+        ["txt", "md", "html", "rtf", "csv"],
     ),
     (
-        "Spam, spam, spam, spam, spam, spam, baked beans, spam, spam, and spam",
-        {},
-        (
-            12,
-            {
-                "Spam, spam, spam, spam, spam, spam, baked beans, spam, spam, and spam": 12
-            },
-        ),
+        ("save_document", save_document),
+        saved_documents,
+        [
+            ("My_Princess_Diaries.txt", "I can't be a princess!"),
+            (
+                "The_Devil_Wears_Boots.md",
+                "Please, bore someone else with your questions.",
+            ),
+        ],
+        {
+            "My_Princess_Diaries.txt": "I can't be a princess!",
+            "The_Devil_Wears_Boots.md": "Please, bore someone else with your questions.",
+        },
+    ),
+    (
+        ("add_line_break", add_line_break),
+        "It's not you, it's me.",
+        [()],
+        "It's not you, it's me.\n\n",
     ),
 ]
+
 
 submit_cases = run_cases + [
     (
-        "This is an ex-parrot",
-        {"This parrot is no more": 5},
-        (4, {"This parrot is no more": 5, "This is an ex-parrot": 4}),
+        ("add_format", add_format),
+        default_formats,
+        [
+            ("doc",),
+            ("docx",),
+            ("pdf",),
+        ],
+        ["txt", "md", "html", "doc", "docx", "pdf"],
     ),
     (
-        "This doc should 'incorrectly' have 9999 words to test that the memoization is working",
+        ("save_document", save_document),
+        saved_documents,
+        [
+            ("Function_Club.txt", "The types you own end up owning you"),
+            ("Shrek.doc", "Functions are like onions."),
+        ],
         {
-            "My hovercraft is full of eels": 6,
-            "This doc should 'incorrectly' have 9999 words to test that the memoization is working": 9999,
+            "Function_Club.txt": "The types you own end up owning you",
+            "Shrek.doc": "Functions are like onions.",
         },
-        (
-            9999,
-            {
-                "My hovercraft is full of eels": 6,
-                "This doc should 'incorrectly' have 9999 words to test that the memoization is working": 9999,
-            },
-        ),
+    ),
+    (
+        ("add_line_break", add_line_break),
+        "Go be free.",
+        [()],
+        "Go be free.\n\n",
     ),
 ]
 
 
-def test(input_document, input_memos, expected_output):
+def test(input1, input2, input3, expected_output):
     print("---------------------------------")
-    print(f"Input document:\n  {input_document}")
-    print(f"Input memos:")
-    for key, value in input_memos.items():
-        print(f"  {key}: {value}")
-    print(f"Expected word count: {expected_output[0]}")
-    print(f"Expected memos:")
-    for key, value in expected_output[1].items():
-        print(f"  {key}: {value}")
-    input_memos_copy = input_memos.copy()
-    result = word_count_memo(input_document, input_memos_copy)
-    print(f"Actual word count: {result[0]}")
-    print(f"Actual memos:")
-    for key, value in result[1].items():
-        print(f"  {key}: {value}")
+    print(f"Inputs:")
+    print(f" * new command: {input1[0]}")
+    print(f" * starting input: {input2}")
+    result = input2
+    commands = default_commands
+    input2_length = len(input2)
+    default_commands_length = len(default_commands)
 
-    if input_memos_copy != input_memos:
-        print("Mutated input memos\nFail")
-        return False
-    if input_memos == expected_output[1] and result[1] != expected_output[1]:
-        print("Expected word count from the input memos\nFail")
-        return False
-    if result != expected_output:
-        print("Fail")
-        return False
-    print("Pass")
-    return True
+    # add and test new command
+    commands = add_custom_command(commands, *input1)
+    for item in input3:
+        if len(item) > 0:
+            print(f" * input: {item}")
+        result = commands[input1[0]](result, *item)
+
+    # check result
+    print(f"Expected: '{expected_output}'")
+    print(f"Actual:   '{result}'")
+    if result == expected_output:
+        # check inputs not mutated
+        if len(input2) == input2_length:
+            if len(default_commands) == default_commands_length:
+                print("Pass")
+                return True
+            else:
+                print("default_commands modified")
+        else:
+            print("Starting input modified")
+    print("Fail")
+    return False
 
 
 def main():
@@ -103,6 +121,5 @@ def main():
 test_cases = submit_cases
 if "__RUN__" in globals():
     test_cases = run_cases
-
 
 main()
