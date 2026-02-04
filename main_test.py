@@ -1,63 +1,86 @@
-from main import remove_emphasis
+from main import *
 
-TestCase = tuple[str, str]
-
-run_cases: list[TestCase] = [
-    ("*Don't* panic.\n", "Don't panic.\n"),
+run_cases = [
     (
-        "The **answer to the ultimate question** of life, the universe and everything is *42*\n",
-        "The answer to the ultimate question of life, the universe and everything is 42\n",
+        "My hovercraft is full of eels",
+        {
+            "My hovercraft is full of eels": 6,
+            "He's a lumberjack and he's okay. He sleeps all night and he works all day": 15,
+        },
+        (
+            6,
+            {
+                "My hovercraft is full of eels": 6,
+                "He's a lumberjack and he's okay. He sleeps all night and he works all day": 15,
+            },
+        ),
     ),
     (
-        "For a moment, *nothing* happened.\nThen, after a second or so, nothing **continued** to happen.\n",
-        "For a moment, nothing happened.\nThen, after a second or so, nothing continued to happen.\n",
+        "Spam, spam, spam, spam, spam, spam, baked beans, spam, spam, and spam",
+        {},
+        (
+            12,
+            {
+                "Spam, spam, spam, spam, spam, spam, baked beans, spam, spam, and spam": 12
+            },
+        ),
     ),
 ]
 
-submit_cases: list[TestCase] = run_cases + [
-    ("", ""),
+submit_cases = run_cases + [
     (
-        "The Hitchhiker's Guide is a d*mn **useful** book.\n",
-        "The Hitchhiker's Guide is a d*mn useful book.\n",
+        "This is an ex-parrot",
+        {"This parrot is no more": 5},
+        (4, {"This parrot is no more": 5, "This is an ex-parrot": 4}),
     ),
     (
-        "In the beginning the *universe* was created.\nThis has made a lot of people very *angry* and been widely regarded as a bad move.\n",
-        "In the beginning the universe was created.\nThis has made a lot of people very angry and been widely regarded as a bad move.\n",
-    ),
-    (
-        "Ford, you're turning into a *penguin*\n",
-        "Ford, you're turning into a penguin\n",
-    ),
-    (
-        "*Space* is big.\nYou just won't **believe** how vastly, hugely, mind-bogglingly big it is.\n",
-        "Space is big.\nYou just won't believe how vastly, hugely, mind-bogglingly big it is.\n",
-    ),
-    (
-        "***Life before death, journey before destination.***\n",
-        "Life before death, journey before destination.\n",
+        "This doc should 'incorrectly' have 9999 words to test that the memoization is working",
+        {
+            "My hovercraft is full of eels": 6,
+            "This doc should 'incorrectly' have 9999 words to test that the memoization is working": 9999,
+        },
+        (
+            9999,
+            {
+                "My hovercraft is full of eels": 6,
+                "This doc should 'incorrectly' have 9999 words to test that the memoization is working": 9999,
+            },
+        ),
     ),
 ]
 
 
-def test(input_doc: str, expected_output: str) -> bool:
+def test(input_document, input_memos, expected_output):
     print("---------------------------------")
-    print(f"Input document:\n{input_doc}")
-    print(f"Expected output:\n{expected_output}")
-    try:
-        result = remove_emphasis(input_doc)
-    except Exception as e:
-        print(f"Exception raised: {e}")
+    print(f"Input document:\n  {input_document}")
+    print(f"Input memos:")
+    for key, value in input_memos.items():
+        print(f"  {key}: {value}")
+    print(f"Expected word count: {expected_output[0]}")
+    print(f"Expected memos:")
+    for key, value in expected_output[1].items():
+        print(f"  {key}: {value}")
+    input_memos_copy = input_memos.copy()
+    result = word_count_memo(input_document, input_memos_copy)
+    print(f"Actual word count: {result[0]}")
+    print(f"Actual memos:")
+    for key, value in result[1].items():
+        print(f"  {key}: {value}")
+
+    if input_memos_copy != input_memos:
+        print("Mutated input memos\nFail")
+        return False
+    if input_memos == expected_output[1] and result[1] != expected_output[1]:
+        print("Expected word count from the input memos\nFail")
+        return False
+    if result != expected_output:
         print("Fail")
         return False
-    print(f"Actual output:\n{result}")
-    if result == expected_output:
-        print("Pass")
-        return True
-    print("Fail")
-    return False
+    print("Pass")
+    return True
 
 
-def main() -> None:
+def main():
     passed = 0
     failed = 0
     skipped = len(submit_cases) - len(test_cases)
@@ -77,8 +100,9 @@ def main() -> None:
         print(f"{passed} passed, {failed} failed")
 
 
-test_cases: list[TestCase] = submit_cases
+test_cases = submit_cases
 if "__RUN__" in globals():
     test_cases = run_cases
+
 
 main()

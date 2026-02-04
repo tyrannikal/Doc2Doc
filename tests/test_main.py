@@ -28,6 +28,8 @@ from main import (
     remove_word_emphasis,
     restore_documents,
     stylize_title,
+    word_count,
+    word_count_memo,
 )
 
 
@@ -735,3 +737,66 @@ class TestRemoveEmphasis:
         doc = "Title\n*italic* and **bold**\nplain line"
         expected = "Title\nitalic and bold\nplain line"
         assert remove_emphasis(doc) == expected
+
+
+class TestWordCount:
+    """Tests for word_count function."""
+
+    def test_counts_words(self) -> None:
+        """Test counting words in a simple sentence."""
+        assert word_count("hello world") == 2
+
+    def test_empty_string(self) -> None:
+        """Test empty string returns zero."""
+        assert word_count("") == 0
+
+    def test_single_word(self) -> None:
+        """Test single word returns one."""
+        assert word_count("hello") == 1
+
+    def test_multiple_spaces(self) -> None:
+        """Test multiple spaces between words."""
+        assert word_count("hello    world") == 2
+
+    def test_newlines_and_tabs(self) -> None:
+        """Test words separated by various whitespace."""
+        assert word_count("hello\nworld\tthere") == 3
+
+
+class TestWordCountMemo:
+    """Tests for word_count_memo function."""
+
+    def test_counts_and_memoizes_new_document(self) -> None:
+        """Test counting a new document adds it to memos."""
+        memos: dict[str, int] = {}
+        count, new_memos = word_count_memo("hello world", memos)
+        assert count == 2
+        assert new_memos == {"hello world": 2}
+
+    def test_returns_cached_count(self) -> None:
+        """Test that cached document returns memoized count."""
+        memos = {"hello world": 2}
+        count, new_memos = word_count_memo("hello world", memos)
+        assert count == 2
+        assert new_memos == {"hello world": 2}
+
+    def test_does_not_mutate_original_memos(self) -> None:
+        """Test that original memos dict is not modified."""
+        memos: dict[str, int] = {}
+        original_copy = memos.copy()
+        word_count_memo("hello world", memos)
+        assert memos == original_copy
+
+    def test_preserves_existing_memos(self) -> None:
+        """Test that existing memos are preserved when adding new."""
+        memos = {"existing doc": 5}
+        count, new_memos = word_count_memo("hello world", memos)
+        assert count == 2
+        assert new_memos == {"existing doc": 5, "hello world": 2}
+
+    def test_empty_document(self) -> None:
+        """Test counting empty document."""
+        memos: dict[str, int] = {}
+        count, new_memos = word_count_memo("", memos)
+        assert count == 0
+        assert new_memos == {"": 0}
