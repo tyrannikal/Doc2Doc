@@ -230,3 +230,9 @@ def sort_dates(dates: list[str]) -> list[str]:
 
 def format_date(date: str) -> str:
     return f"{date[6:]}-{date[:5]}"
+
+
+def factorial_r(x: int) -> int:
+    if x - 1 <= 0:
+        return 1
+    return x * factorial_r(x - 1)
