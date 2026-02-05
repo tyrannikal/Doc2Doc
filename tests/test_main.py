@@ -1,5 +1,7 @@
 """Tests for main module."""
 
+# pylint: disable=too-many-lines
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -18,6 +20,7 @@ from main import (
     convert_case,
     convert_file_format,
     convert_line,
+    factorial_r,
     file_to_prompt,
     file_type_getter,
     format_date,
@@ -39,6 +42,7 @@ from main import (
     stylize_title,
     word_count,
     word_count_memo,
+    zipmap,
 )
 
 if TYPE_CHECKING:
@@ -948,3 +952,77 @@ class TestSortDates:
         original_copy = dates.copy()
         sort_dates(dates)
         assert dates == original_copy
+
+
+class TestFactorialR:
+    """Tests for factorial_r function."""
+
+    def test_factorial_of_zero(self) -> None:
+        """Test that factorial of 0 is 1."""
+        assert factorial_r(0) == 1
+
+    def test_factorial_of_one(self) -> None:
+        """Test that factorial of 1 is 1."""
+        assert factorial_r(1) == 1
+
+    def test_factorial_of_five(self) -> None:
+        """Test that factorial of 5 is 120."""
+        assert factorial_r(5) == 120
+
+    def test_factorial_of_ten(self) -> None:
+        """Test that factorial of 10 is 3628800."""
+        assert factorial_r(10) == 3628800
+
+    def test_factorial_of_small_numbers(self) -> None:
+        """Test factorial of small numbers 2, 3, 4."""
+        assert factorial_r(2) == 2
+        assert factorial_r(3) == 6
+        assert factorial_r(4) == 24
+
+
+class TestZipmap:
+    """Tests for zipmap function."""
+
+    def test_zips_equal_length_lists(self) -> None:
+        """Test zipping two lists of equal length."""
+        keys = ["a", "b", "c"]
+        values = [1, 2, 3]
+        result = zipmap(keys, values)
+        assert result == {"a": 1, "b": 2, "c": 3}
+
+    def test_empty_keys_list(self) -> None:
+        """Test with empty keys list returns empty dict."""
+        assert zipmap([], [1, 2, 3]) == {}
+
+    def test_empty_values_list(self) -> None:
+        """Test with empty values list returns empty dict."""
+        assert zipmap(["a", "b"], []) == {}
+
+    def test_both_empty_lists(self) -> None:
+        """Test with both empty lists returns empty dict."""
+        assert zipmap([], []) == {}
+
+    def test_single_element_lists(self) -> None:
+        """Test zipping single element lists."""
+        assert zipmap(["key"], ["value"]) == {"key": "value"}
+
+    def test_more_keys_than_values(self) -> None:
+        """Test when keys list is longer than values list."""
+        keys = ["a", "b", "c", "d"]
+        values = [1, 2, 3]
+        result = zipmap(keys, values)
+        assert result == {"a": 1, "b": 2, "c": 3}
+
+    def test_more_values_than_keys(self) -> None:
+        """Test when values list is longer than keys list."""
+        keys = ["a", "b"]
+        values = [1, 2, 3, 4]
+        result = zipmap(keys, values)
+        assert result == {"a": 1, "b": 2}
+
+    def test_mixed_types(self) -> None:
+        """Test zipping lists with mixed types."""
+        keys = ["name", "age", "active"]
+        values = ["Alice", 30, True]
+        result = zipmap(keys, values)
+        assert result == {"name": "Alice", "age": 30, "active": True}

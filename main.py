@@ -233,6 +233,14 @@ def format_date(date: str) -> str:
 
 
 def factorial_r(x: int) -> int:
-    if x - 1 <= 0:
+    if x == 0:
         return 1
     return x * factorial_r(x - 1)
+
+
+def zipmap(keys: list[Any], values: list[Any]) -> dict[Any, Any]:
+    if not keys or not values:
+        return {}
+
+    zipped = zipmap(keys[1:], values[1:])
+    return {keys[0]: values[0]} | zipped
