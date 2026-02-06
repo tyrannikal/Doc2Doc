@@ -30,6 +30,7 @@ from main import (
     is_hexadecimal,
     join,
     join_first_sentences,
+    list_files,
     pair_document_with_format,
     remove_emphasis,
     remove_format,
@@ -1059,3 +1060,52 @@ class TestSumNestedList:
     def test_nested_empty_lists(self) -> None:
         """Test list containing empty nested lists."""
         assert sum_nested_list([1, [], [2, []], 3]) == 6
+
+
+class TestListFiles:
+    """Tests for list_files function."""
+
+    def test_empty_directory(self) -> None:
+        """Test that empty directory returns empty list."""
+        assert not list_files({})
+
+    def test_single_file(self) -> None:
+        """Test directory with a single file."""
+        assert list_files({"file.txt": None}) == ["/file.txt"]
+
+    def test_multiple_files(self) -> None:
+        """Test directory with multiple files."""
+        result = list_files({"a.txt": None, "b.txt": None})
+        assert "/a.txt" in result
+        assert "/b.txt" in result
+        assert len(result) == 2
+
+    def test_nested_directory(self) -> None:
+        """Test file inside a subdirectory."""
+        assert list_files({"dir": {"file.txt": None}}) == ["/dir/file.txt"]
+
+    def test_deep_nesting(self) -> None:
+        """Test deeply nested directory structure."""
+        tree: dict[str, Any] = {"a": {"b": {"c.txt": None}}}
+        assert list_files(tree) == ["/a/b/c.txt"]
+
+    def test_mixed_files_and_directories(self) -> None:
+        """Test directory with both files and subdirectories."""
+        tree: dict[str, Any] = {
+            "readme.md": None,
+            "src": {"main.py": None},
+        }
+        result = list_files(tree)
+        assert "/readme.md" in result
+        assert "/src/main.py" in result
+        assert len(result) == 2
+
+    def test_custom_filepath_prefix(self) -> None:
+        """Test with a custom starting filepath."""
+        result = list_files({"file.txt": None}, "/home")
+        assert result == ["/home/file.txt"]
+
+    def test_empty_subdirectory(self) -> None:
+        """Test directory containing an empty subdirectory."""
+        tree: dict[str, Any] = {"file.txt": None, "empty_dir": {}}
+        assert list_files(tree) == ["/file.txt"]

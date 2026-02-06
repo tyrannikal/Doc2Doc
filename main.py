@@ -3,6 +3,7 @@ from functools import reduce
 from typing import Any
 
 type NestedList = list[int | NestedList]
+type NestedDict = dict[str, None | NestedDict]
 
 HEX_COLOR_LENGTH = 6
 default_commands = {}
@@ -256,3 +257,15 @@ def sum_nested_list(lst: NestedList) -> int:
         else:
             total_size += sum_nested_list(item)
     return total_size
+
+
+def list_files(parent_directory: NestedDict, current_filepath: str = "") -> list[str]:
+    file_paths: list[str] = []
+    for key in parent_directory:
+        new_filepath = f"{current_filepath}/{key}"
+        value = parent_directory.get(key)
+        if isinstance(value, type(None)):
+            file_paths.append(new_filepath)
+        else:
+            file_paths.extend(list_files(value, new_filepath))
+    return file_paths
