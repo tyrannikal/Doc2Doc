@@ -40,6 +40,7 @@ from main import (
     save_document,
     sort_dates,
     stylize_title,
+    sum_nested_list,
     word_count,
     word_count_memo,
     zipmap,
@@ -1026,3 +1027,35 @@ class TestZipmap:
         values = ["Alice", 30, True]
         result = zipmap(keys, values)
         assert result == {"name": "Alice", "age": 30, "active": True}
+
+
+class TestSumNestedList:
+    """Tests for sum_nested_list function."""
+
+    def test_flat_list(self) -> None:
+        """Test summing a flat list of integers."""
+        assert sum_nested_list([1, 2, 3]) == 6
+
+    def test_empty_list(self) -> None:
+        """Test that empty list returns zero."""
+        assert sum_nested_list([]) == 0
+
+    def test_single_int(self) -> None:
+        """Test list with a single integer."""
+        assert sum_nested_list([5]) == 5
+
+    def test_one_level_nesting(self) -> None:
+        """Test list with one level of nesting."""
+        assert sum_nested_list([1, [2, 3]]) == 6
+
+    def test_deep_nesting(self) -> None:
+        """Test deeply nested list."""
+        assert sum_nested_list([1, [2, [3, [4]]]]) == 10
+
+    def test_all_nested(self) -> None:
+        """Test list where all elements are nested lists."""
+        assert sum_nested_list([[1, 2], [3, 4]]) == 10
+
+    def test_nested_empty_lists(self) -> None:
+        """Test list containing empty nested lists."""
+        assert sum_nested_list([1, [], [2, []], 3]) == 6

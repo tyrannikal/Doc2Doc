@@ -2,6 +2,8 @@ from collections.abc import Callable
 from functools import reduce
 from typing import Any
 
+type NestedList = list[int | NestedList]
+
 HEX_COLOR_LENGTH = 6
 default_commands = {}
 default_formats = ["txt", "md", "html"]
@@ -244,3 +246,13 @@ def zipmap(keys: list[Any], values: list[Any]) -> dict[Any, Any]:
 
     zipped = zipmap(keys[1:], values[1:])
     return {keys[0]: values[0]} | zipped
+
+
+def sum_nested_list(lst: NestedList) -> int:
+    total_size = 0
+    for item in lst:
+        if isinstance(item, int):
+            total_size += item
+        else:
+            total_size += sum_nested_list(item)
+    return total_size
