@@ -1,23 +1,70 @@
 from main import *
 
 run_cases = [
-    ({1: {2: {3: {}, 4: {5: {}}}, 6: {}, 7: {8: {9: {10: {}}}}}}, 2, 2),
-    ({1: {2: {3: {}, 4: {5: {}}}, 6: {}, 7: {8: {9: {10: {}}}}}}, 9, 4),
+    (
+        capitalize_content,
+        "sample.txt",
+        "I really don't feel like screaming today.",
+        ["txt", "md", "doc"],
+        "I REALLY DON'T FEEL LIKE SCREAMING TODAY.",
+    ),
+    (
+        reverse_content,
+        "testing.doc",
+        "This is probably how they write in the red room in Twin Peaks...",
+        ["txt", "md", "doc"],
+        "...skaeP niwT ni moor der eht ni etirw yeht woh ylbaborp si sihT",
+    ),
 ]
 
 submit_cases = run_cases + [
-    ({}, 1, -1),
-    ({1: {2: {3: {}, 4: {5: {}}}, 6: {}, 7: {8: {9: {10: {}}}}}}, 5, 4),
-    ({1: {2: {3: {}, 4: {5: {}}}, 6: {}, 7: {8: {9: {10: {}}}}}}, 20, -1),
+    (
+        capitalize_content,
+        "test.docx",
+        "Okay actually I do feel like screaming today.",
+        ["txt", "md", "doc"],
+        "invalid file format",
+    ),
+    (
+        reverse_content,
+        "end.ppt",
+        "Cherry pie and coffee anyone?",
+        ["txt", "md", "doc"],
+        "invalid file format",
+    ),
+    (
+        capitalize_content,
+        "sample.doc",
+        "I really do feel like eating today.",
+        ["txt", "md", "doc"],
+        "I REALLY DO FEEL LIKE EATING TODAY.",
+    ),
+    (
+        reverse_content,
+        "testing.md",
+        "The owls are not what they seem.",
+        ["txt", "md", "doc"],
+        ".mees yeht tahw ton era slwo ehT",
+    ),
 ]
 
 
-def test(input1, input2, expected_output):
+def test(conversion_func, filename, doc_content, valid_formats, expected_output):
     print("---------------------------------")
-    print(f"Input tree: {input1}")
-    print(f"Input document id: {input2}")
+    print(f"Inputs:")
+    print(f" * conversion_func: {conversion_func.__name__}")
+    print(f" * filename: {filename}")
+    print(f" * doc_content: {doc_content}")
+    print(f" * valid_formats: {valid_formats}")
     print(f"Expected: {expected_output}")
-    result = count_nested_levels(input1, input2)
+    try:
+        result = doc_format_checker_and_converter(conversion_func, valid_formats)(
+            filename, doc_content
+        )
+    except Exception as e:
+        if not isinstance(e, ValueError):
+            return False
+        result = str(e)
     print(f"Actual:   {result}")
     if result == expected_output:
         print("Pass")

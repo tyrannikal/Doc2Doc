@@ -298,17 +298,14 @@ def count_nested_levels(
     return -1
 
 
-def get_logger(formatter: Callable[..., str]) -> Callable[..., None]:
+def get_logger(formatter: Callable[[str, str], str]) -> Callable[..., None]:
     def logger(first: str, second: str) -> None:
         print(f"{formatter(first, second)}")
 
     return logger
 
 
-# Don't edit below this line
-
-
-def test(first: str, errors: list[str], formatter: Callable[..., str]) -> None:
+def test(first: str, errors: list[str], formatter: Callable[[str, str], str]) -> None:
     print("Logs:")
     logger = get_logger(formatter)
     for err in errors:
@@ -322,6 +319,25 @@ def colon_delimit(first: str, second: str) -> str:
 
 def dash_delimit(first: str, second: str) -> str:
     return f"{first} - {second}"
+
+
+def doc_format_checker_and_converter(
+    conversion_function: Callable[[str], str], valid_formats: list[str]
+) -> Callable[..., Any]:
+    def convert_content(filename: str, content: str) -> str:
+        if filename.split(".")[1] not in valid_formats:
+            raise ValueError("invalid file format")
+        return conversion_function(content)
+
+    return convert_content
+
+
+def capitalize_content(content: str) -> str:
+    return content.upper()
+
+
+def reverse_content(content: str) -> str:
+    return content[::-1]
 
 
 def main() -> None:
