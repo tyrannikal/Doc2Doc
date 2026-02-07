@@ -4,6 +4,7 @@ from typing import Any
 
 type NestedList = list[int | NestedList]
 type NestedDict = dict[str, None | NestedDict]
+type NestedDocument = dict[int, NestedDocument]
 
 HEX_COLOR_LENGTH = 6
 default_commands = {}
@@ -269,3 +270,29 @@ def list_files(parent_directory: NestedDict, current_filepath: str = "") -> list
         else:
             file_paths.extend(list_files(value, new_filepath))
     return file_paths
+
+
+def find_longest_word(document: str, longest_word: str = "") -> str:
+    if not document.strip():
+        return longest_word
+    words = document.split(maxsplit=1)
+    first_word = words[0]
+    if len(first_word) > len(longest_word):
+        longest_word = first_word
+    if len(words) > 1:
+        longest_word = find_longest_word(words[1], longest_word)
+    return longest_word
+
+
+def count_nested_levels(
+    nested_documents: NestedDocument, target_document_id: int, level: int = 1
+) -> int:
+    for key in nested_documents:
+        if key == target_document_id:
+            return level
+        value = nested_documents.get(key)
+        if not isinstance(value, type(None)):
+            level_found = count_nested_levels(value, target_document_id, level + 1)
+            if level_found >= 0:
+                return level_found
+    return -1

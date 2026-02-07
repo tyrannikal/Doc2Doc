@@ -1,70 +1,24 @@
 from main import *
 
 run_cases = [
-    (
-        {
-            "Documents": {
-                "Proposal.docx": None,
-                "Report": {"AnnualReport.pdf": None, "Financials.xlsx": None},
-            },
-            "Downloads": {"picture1.jpg": None, "picture2.jpg": None},
-        },
-        [
-            "/Documents/Proposal.docx",
-            "/Documents/Report/AnnualReport.pdf",
-            "/Documents/Report/Financials.xlsx",
-            "/Downloads/picture1.jpg",
-            "/Downloads/picture2.jpg",
-        ],
-    )
+    ({1: {2: {3: {}, 4: {5: {}}}, 6: {}, 7: {8: {9: {10: {}}}}}}, 2, 2),
+    ({1: {2: {3: {}, 4: {5: {}}}, 6: {}, 7: {8: {9: {10: {}}}}}}, 9, 4),
 ]
 
 submit_cases = run_cases + [
-    ({}, []),
-    (
-        {
-            "Work": {
-                "ProjectA": {
-                    "Documentation": {"README.md": None, "GUIDE.md": None},
-                    "Source": {"main.py": None, "util.py": None},
-                },
-                "ProjectB": {"Presentation.pptx": None},
-            }
-        },
-        [
-            "/Work/ProjectA/Documentation/GUIDE.md",
-            "/Work/ProjectA/Documentation/README.md",
-            "/Work/ProjectA/Source/main.py",
-            "/Work/ProjectA/Source/util.py",
-            "/Work/ProjectB/Presentation.pptx",
-        ],
-    ),
-    (
-        {
-            "Music": {
-                "Pop": {"song1.mp3": None},
-                "Classical": {"Beethoven": {"symphony9.mp3": None}},
-            }
-        },
-        ["/Music/Classical/Beethoven/symphony9.mp3", "/Music/Pop/song1.mp3"],
-    ),
+    ({}, 1, -1),
+    ({1: {2: {3: {}, 4: {5: {}}}, 6: {}, 7: {8: {9: {10: {}}}}}}, 5, 4),
+    ({1: {2: {3: {}, 4: {5: {}}}, 6: {}, 7: {8: {9: {10: {}}}}}}, 20, -1),
 ]
 
 
-def test(input1, expected_output):
+def test(input1, input2, expected_output):
     print("---------------------------------")
-    print(f"Input: {input1}")
-    print(f"Expected:")
-    for output in expected_output:
-        print(f"    {output}")
-    try:
-        result = sorted(list_files(input1))
-        print(f"Actual:")
-        for res in result:
-            print(f"    {res}")
-    except Exception as e:
-        result = e
-        print(f"Error: {e}")
+    print(f"Input tree: {input1}")
+    print(f"Input document id: {input2}")
+    print(f"Expected: {expected_output}")
+    result = count_nested_levels(input1, input2)
+    print(f"Actual:   {result}")
     if result == expected_output:
         print("Pass")
         return True

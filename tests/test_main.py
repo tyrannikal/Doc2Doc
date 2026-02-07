@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from main import (
+    NestedDocument,
     add_border,
     add_custom_command,
     add_format,
@@ -20,9 +21,11 @@ from main import (
     convert_case,
     convert_file_format,
     convert_line,
+    count_nested_levels,
     factorial_r,
     file_to_prompt,
     file_type_getter,
+    find_longest_word,
     format_date,
     format_line,
     get_median_font_size,
@@ -1109,3 +1112,78 @@ class TestListFiles:
         """Test directory containing an empty subdirectory."""
         tree: dict[str, Any] = {"file.txt": None, "empty_dir": {}}
         assert list_files(tree) == ["/file.txt"]
+
+
+class TestFindLongestWord:
+    """Tests for find_longest_word function."""
+
+    def test_single_word(self) -> None:
+        """Test document with a single word."""
+        assert find_longest_word("hello") == "hello"
+
+    def test_multiple_words(self) -> None:
+        """Test document with multiple words of different lengths."""
+        assert find_longest_word("I am extraordinary") == "extraordinary"
+
+    def test_empty_string(self) -> None:
+        """Test that empty string returns empty string."""
+        assert find_longest_word("") == ""
+
+    def test_whitespace_only(self) -> None:
+        """Test that whitespace-only string returns empty string."""
+        assert find_longest_word("   ") == ""
+
+    def test_equal_length_words(self) -> None:
+        """Test that first longest word is returned when tied."""
+        assert find_longest_word("cat dog bat") == "cat"
+
+    def test_longest_word_at_end(self) -> None:
+        """Test when the longest word is at the end."""
+        assert find_longest_word("a bb ccc") == "ccc"
+
+    def test_longest_word_at_start(self) -> None:
+        """Test when the longest word is at the start."""
+        assert find_longest_word("longest ab c") == "longest"
+
+
+class TestCountNestedLevels:
+    """Tests for count_nested_levels function."""
+
+    def test_finds_key_at_top_level(self) -> None:
+        """Test finding a key at the top level returns 1."""
+        tree: NestedDocument = {1: {2: {}}, 3: {}}
+        assert count_nested_levels(tree, 1) == 1
+
+    def test_finds_key_at_second_level(self) -> None:
+        """Test finding a key at the second level returns 2."""
+        tree: NestedDocument = {1: {2: {3: {}}, 4: {5: {}}}, 6: {}}
+        assert count_nested_levels(tree, 2) == 2
+
+    def test_finds_key_at_deep_level(self) -> None:
+        """Test finding a key deeply nested."""
+        tree: NestedDocument = {
+            1: {2: {3: {}, 4: {5: {}}}, 6: {}, 7: {8: {9: {10: {}}}}}
+        }
+        assert count_nested_levels(tree, 9) == 4
+
+    def test_key_not_found_returns_negative_one(self) -> None:
+        """Test that a missing key returns -1."""
+        tree: NestedDocument = {1: {2: {3: {}}}}
+        assert count_nested_levels(tree, 99) == -1
+
+    def test_empty_dict_returns_negative_one(self) -> None:
+        """Test that empty dict returns -1."""
+        empty: NestedDocument = {}
+        assert count_nested_levels(empty, 1) == -1
+
+    def test_finds_leaf_key(self) -> None:
+        """Test finding a key with an empty dict value."""
+        tree: NestedDocument = {1: {2: {3: {}}}}
+        assert count_nested_levels(tree, 3) == 3
+
+    def test_finds_key_in_sibling_branch(self) -> None:
+        """Test finding a key in a sibling branch."""
+        tree: NestedDocument = {
+            1: {2: {3: {}, 4: {5: {}}}, 6: {}, 7: {8: {9: {10: {}}}}}
+        }
+        assert count_nested_levels(tree, 5) == 4
