@@ -15,6 +15,7 @@ from main import (
     add_format,
     add_line_break,
     add_prefix,
+    capitalize_content,
     center_title,
     change_bullet_style,
     choose_parser,
@@ -24,12 +25,15 @@ from main import (
     convert_line,
     count_nested_levels,
     dash_delimit,
+    doc_format_checker_and_converter,
     factorial_r,
     file_to_prompt,
     file_type_getter,
     find_longest_word,
+    fix_ellipsis,
     format_date,
     format_line,
+    get_filter_cmd,
     get_logger,
     get_median_font_size,
     hex_to_rgb,
@@ -43,7 +47,10 @@ from main import (
     remove_invalid_lines,
     remove_line_emphasis,
     remove_word_emphasis,
+    replace_bad,
+    replace_ellipsis,
     restore_documents,
+    reverse_content,
     save_document,
     sort_dates,
     stylize_title,
@@ -1253,3 +1260,171 @@ class TestDashDelimit:
     def test_second_empty(self) -> None:
         """Test with empty second string."""
         assert dash_delimit("left", "") == "left - "
+
+
+class TestDocFormatCheckerAndConverter:
+    """Tests for doc_format_checker_and_converter function."""
+
+    def test_returns_callable(self) -> None:
+        """Test that it returns a callable."""
+        converter = doc_format_checker_and_converter(capitalize_content, ["txt"])
+        assert callable(converter)
+
+    def test_converts_valid_format(self) -> None:
+        """Test conversion with a valid file format."""
+        converter = doc_format_checker_and_converter(capitalize_content, ["txt", "md"])
+        assert converter("doc.txt", "hello") == "HELLO"
+
+    def test_raises_on_invalid_format(self) -> None:
+        """Test that invalid file format raises ValueError."""
+        converter = doc_format_checker_and_converter(capitalize_content, ["txt"])
+        with pytest.raises(ValueError, match="invalid file format"):
+            converter("doc.pdf", "hello")
+
+    def test_uses_provided_conversion_function(self) -> None:
+        """Test that the provided conversion function is applied."""
+        converter = doc_format_checker_and_converter(reverse_content, ["md"])
+        assert converter("file.md", "abc") == "cba"
+
+    def test_multiple_valid_formats(self) -> None:
+        """Test with multiple valid formats."""
+        converter = doc_format_checker_and_converter(
+            capitalize_content, ["txt", "md", "html"]
+        )
+        assert converter("file.md", "test") == "TEST"
+        assert converter("file.html", "test") == "TEST"
+
+
+class TestCapitalizeContent:
+    """Tests for capitalize_content function."""
+
+    def test_capitalizes_lowercase(self) -> None:
+        """Test capitalizing lowercase text."""
+        assert capitalize_content("hello world") == "HELLO WORLD"
+
+    def test_already_uppercase(self) -> None:
+        """Test that already uppercase text is unchanged."""
+        assert capitalize_content("HELLO") == "HELLO"
+
+    def test_empty_string(self) -> None:
+        """Test capitalizing empty string."""
+        assert capitalize_content("") == ""
+
+    def test_mixed_case(self) -> None:
+        """Test capitalizing mixed case text."""
+        assert capitalize_content("HeLLo WoRLd") == "HELLO WORLD"
+
+
+class TestReverseContent:
+    """Tests for reverse_content function."""
+
+    def test_reverses_string(self) -> None:
+        """Test reversing a simple string."""
+        assert reverse_content("hello") == "olleh"
+
+    def test_empty_string(self) -> None:
+        """Test reversing empty string."""
+        assert reverse_content("") == ""
+
+    def test_single_char(self) -> None:
+        """Test reversing single character."""
+        assert reverse_content("a") == "a"
+
+    def test_palindrome(self) -> None:
+        """Test reversing a palindrome."""
+        assert reverse_content("racecar") == "racecar"
+
+
+class TestGetFilterCmd:
+    """Tests for get_filter_cmd function."""
+
+    def test_returns_callable(self) -> None:
+        """Test that it returns a callable."""
+        cmd = get_filter_cmd(replace_bad, replace_ellipsis)
+        assert callable(cmd)
+
+    def test_option_one_applies_filter_one(self) -> None:
+        """Test --one applies the first filter."""
+        cmd = get_filter_cmd(replace_bad, replace_ellipsis)
+        assert cmd("bad day", "--one") == "good day"
+
+    def test_option_two_applies_filter_two(self) -> None:
+        """Test --two applies the second filter."""
+        cmd = get_filter_cmd(replace_bad, replace_ellipsis)
+        assert cmd("wait..", "--two") == "wait..."
+
+    def test_option_three_applies_both_filters(self) -> None:
+        """Test --three applies filter_one then filter_two."""
+        cmd = get_filter_cmd(replace_bad, fix_ellipsis)
+        assert cmd("bad....", "--three") == "good..."
+
+    def test_option_one_is_default(self) -> None:
+        """Test that --one is the default option."""
+        cmd = get_filter_cmd(replace_bad, replace_ellipsis)
+        assert cmd("bad input", "--one") == "good input"
+
+    def test_invalid_option_raises(self) -> None:
+        """Test that invalid option raises ValueError."""
+        cmd = get_filter_cmd(replace_bad, replace_ellipsis)
+        with pytest.raises(ValueError, match="invalid option"):
+            cmd("text", "--invalid")
+
+
+class TestReplaceBad:
+    """Tests for replace_bad function."""
+
+    def test_replaces_bad_with_good(self) -> None:
+        """Test replacing 'bad' with 'good'."""
+        assert replace_bad("bad day") == "good day"
+
+    def test_no_bad_present(self) -> None:
+        """Test string without 'bad' is unchanged."""
+        assert replace_bad("nice day") == "nice day"
+
+    def test_multiple_occurrences(self) -> None:
+        """Test replacing multiple occurrences."""
+        assert replace_bad("bad bad") == "good good"
+
+    def test_empty_string(self) -> None:
+        """Test with empty string."""
+        assert replace_bad("") == ""
+
+
+class TestReplaceEllipsis:
+    """Tests for replace_ellipsis function."""
+
+    def test_replaces_double_dot(self) -> None:
+        """Test replacing '..' with '...'."""
+        assert replace_ellipsis("wait..") == "wait..."
+
+    def test_no_double_dot(self) -> None:
+        """Test string without '..' is unchanged."""
+        assert replace_ellipsis("hello") == "hello"
+
+    def test_empty_string(self) -> None:
+        """Test with empty string."""
+        assert replace_ellipsis("") == ""
+
+    def test_single_dot(self) -> None:
+        """Test that single dot is unchanged."""
+        assert replace_ellipsis("end.") == "end."
+
+
+class TestFixEllipsis:
+    """Tests for fix_ellipsis function."""
+
+    def test_fixes_four_dots(self) -> None:
+        """Test replacing '....' with '...'."""
+        assert fix_ellipsis("wait....") == "wait..."
+
+    def test_no_four_dots(self) -> None:
+        """Test string without '....' is unchanged."""
+        assert fix_ellipsis("wait...") == "wait..."
+
+    def test_empty_string(self) -> None:
+        """Test with empty string."""
+        assert fix_ellipsis("") == ""
+
+    def test_preserves_three_dots(self) -> None:
+        """Test that exactly three dots are preserved."""
+        assert fix_ellipsis("ok...") == "ok..."

@@ -323,7 +323,7 @@ def dash_delimit(first: str, second: str) -> str:
 
 def doc_format_checker_and_converter(
     conversion_function: Callable[[str], str], valid_formats: list[str]
-) -> Callable[..., Any]:
+) -> Callable[[str, str], Any]:
     def convert_content(filename: str, content: str) -> str:
         if filename.split(".")[1] not in valid_formats:
             raise ValueError("invalid file format")
@@ -338,6 +338,40 @@ def capitalize_content(content: str) -> str:
 
 def reverse_content(content: str) -> str:
     return content[::-1]
+
+
+def get_filter_cmd(
+    filter_one: Callable[[str], str], filter_two: Callable[[str], str]
+) -> Callable[[str, str], str]:
+    def filter_cmd(content: str, option: str = "--one") -> str:
+        filtered_content = ""
+        match option:
+            case "--one":
+                filtered_content = filter_one(content)
+            case "--two":
+                filtered_content = filter_two(content)
+            case "--three":
+                filtered_content = filter_two(filter_one(content))
+            case _:
+                raise ValueError("invalid option")
+        return filtered_content
+
+    return filter_cmd
+
+
+# don't touch below this line
+
+
+def replace_bad(text: str) -> str:
+    return text.replace("bad", "good")
+
+
+def replace_ellipsis(text: str) -> str:
+    return text.replace("..", "...")
+
+
+def fix_ellipsis(text: str) -> str:
+    return text.replace("....", "...")
 
 
 def main() -> None:

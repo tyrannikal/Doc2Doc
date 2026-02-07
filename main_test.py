@@ -2,75 +2,104 @@ from main import *
 
 run_cases = [
     (
-        capitalize_content,
-        "sample.txt",
-        "I really don't feel like screaming today.",
-        ["txt", "md", "doc"],
-        "I REALLY DON'T FEEL LIKE SCREAMING TODAY.",
-    ),
-    (
-        reverse_content,
-        "testing.doc",
-        "This is probably how they write in the red room in Twin Peaks...",
-        ["txt", "md", "doc"],
-        "...skaeP niwT ni moor der eht ni etirw yeht woh ylbaborp si sihT",
+        replace_bad,
+        replace_ellipsis,
+        [
+            (
+                (
+                    "I'm bad, and that's good. I will never be good, and that's not bad..",
+                ),
+                "I'm good, and that's good. I will never be good, and that's not good..",
+            ),
+            (
+                (
+                    "I'm bad, and that's good. I will never be good, and that's not bad..",
+                    "--one",
+                ),
+                "I'm good, and that's good. I will never be good, and that's not good..",
+            ),
+            (
+                (
+                    "I'm bad, and that's good. I will never be good, and that's not bad..",
+                    "--two",
+                ),
+                "I'm bad, and that's good. I will never be good, and that's not bad...",
+            ),
+            (
+                (
+                    "I'm bad, and that's good. I will never be good, and that's not bad..",
+                    "--three",
+                ),
+                "I'm good, and that's good. I will never be good, and that's not good...",
+            ),
+        ],
     ),
 ]
 
 submit_cases = run_cases + [
     (
-        capitalize_content,
-        "test.docx",
-        "Okay actually I do feel like screaming today.",
-        ["txt", "md", "doc"],
-        "invalid file format",
-    ),
-    (
-        reverse_content,
-        "end.ppt",
-        "Cherry pie and coffee anyone?",
-        ["txt", "md", "doc"],
-        "invalid file format",
-    ),
-    (
-        capitalize_content,
-        "sample.doc",
-        "I really do feel like eating today.",
-        ["txt", "md", "doc"],
-        "I REALLY DO FEEL LIKE EATING TODAY.",
-    ),
-    (
-        reverse_content,
-        "testing.md",
-        "The owls are not what they seem.",
-        ["txt", "md", "doc"],
-        ".mees yeht tahw ton era slwo ehT",
+        replace_ellipsis,
+        fix_ellipsis,
+        [
+            (
+                (
+                    "There's no place like home.. but sometimes, it's nice to get away... and explore....",
+                ),
+                "There's no place like home... but sometimes, it's nice to get away.... and explore......",
+            ),
+            (
+                (
+                    "There's no place like home.. but sometimes, it's nice to get away... and explore....",
+                    "--one",
+                ),
+                "There's no place like home... but sometimes, it's nice to get away.... and explore......",
+            ),
+            (
+                (
+                    "There's no place like home.. but sometimes, it's nice to get away... and explore....",
+                    "--two",
+                ),
+                "There's no place like home.. but sometimes, it's nice to get away... and explore...",
+            ),
+            (
+                (
+                    "There's no place like home.. but sometimes, it's nice to get away... and explore....",
+                    "--three",
+                ),
+                "There's no place like home... but sometimes, it's nice to get away... and explore.....",
+            ),
+            (
+                (
+                    "There's no place like home.. but sometimes, it's nice to get away... and explore....",
+                    "",
+                ),
+                "invalid option",
+            ),
+        ],
     ),
 ]
 
 
-def test(conversion_func, filename, doc_content, valid_formats, expected_output):
+def test(filter_one, filter_two, test_cases):
     print("---------------------------------")
-    print(f"Inputs:")
-    print(f" * conversion_func: {conversion_func.__name__}")
-    print(f" * filename: {filename}")
-    print(f" * doc_content: {doc_content}")
-    print(f" * valid_formats: {valid_formats}")
-    print(f"Expected: {expected_output}")
-    try:
-        result = doc_format_checker_and_converter(conversion_func, valid_formats)(
-            filename, doc_content
-        )
-    except Exception as e:
-        if not isinstance(e, ValueError):
-            return False
-        result = str(e)
-    print(f"Actual:   {result}")
-    if result == expected_output:
-        print("Pass")
-        return True
-    print("Fail")
-    return False
+    print(f"Input functions: {filter_one.__name__} and {filter_two.__name__}")
+    filter_cmd = get_filter_cmd(filter_one, filter_two)
+    failed = False
+    for case in test_cases:
+        try:
+            result = filter_cmd(*case[0])
+        except Exception as e:
+            result = str(e)
+        expected_output = case[1]
+        print(f"Expected: {expected_output}")
+        print(f"Actual:   {result}")
+        if result != expected_output:
+            failed = True
+            print("Fail")
+        else:
+            print("Pass")
+    passed = not failed
+    return passed
 
 
 def main():
