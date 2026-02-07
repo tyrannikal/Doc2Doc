@@ -18,16 +18,19 @@ from main import (
     center_title,
     change_bullet_style,
     choose_parser,
+    colon_delimit,
     convert_case,
     convert_file_format,
     convert_line,
     count_nested_levels,
+    dash_delimit,
     factorial_r,
     file_to_prompt,
     file_type_getter,
     find_longest_word,
     format_date,
     format_line,
+    get_logger,
     get_median_font_size,
     hex_to_rgb,
     is_hexadecimal,
@@ -1187,3 +1190,66 @@ class TestCountNestedLevels:
             1: {2: {3: {}, 4: {5: {}}}, 6: {}, 7: {8: {9: {10: {}}}}}
         }
         assert count_nested_levels(tree, 5) == 4
+
+
+class TestGetLogger:
+    """Tests for get_logger function."""
+
+    def test_returns_callable(self) -> None:
+        """Test that get_logger returns a callable."""
+        logger = get_logger(colon_delimit)
+        assert callable(logger)
+
+    def test_logs_formatted_output(self, capsys: pytest.CaptureFixture[str]) -> None:
+        """Test that the logger prints the formatted output."""
+        logger = get_logger(colon_delimit)
+        logger("ERROR", "something broke")
+        captured = capsys.readouterr()
+        assert captured.out.strip().endswith("ERROR: something broke")
+
+    def test_uses_custom_formatter(self, capsys: pytest.CaptureFixture[str]) -> None:
+        """Test that the logger uses the provided formatter."""
+        logger = get_logger(dash_delimit)
+        logger("WARN", "low disk")
+        captured = capsys.readouterr()
+        assert "WARN - low disk" in captured.out
+
+
+class TestColonDelimit:
+    """Tests for colon_delimit function."""
+
+    def test_joins_with_colon(self) -> None:
+        """Test that two strings are joined with colon and space."""
+        assert colon_delimit("key", "value") == "key: value"
+
+    def test_empty_strings(self) -> None:
+        """Test with empty strings."""
+        assert colon_delimit("", "") == ": "
+
+    def test_first_empty(self) -> None:
+        """Test with empty first string."""
+        assert colon_delimit("", "value") == ": value"
+
+    def test_second_empty(self) -> None:
+        """Test with empty second string."""
+        assert colon_delimit("key", "") == "key: "
+
+
+class TestDashDelimit:
+    """Tests for dash_delimit function."""
+
+    def test_joins_with_dash(self) -> None:
+        """Test that two strings are joined with dash."""
+        assert dash_delimit("left", "right") == "left - right"
+
+    def test_empty_strings(self) -> None:
+        """Test with empty strings."""
+        assert dash_delimit("", "") == " - "
+
+    def test_first_empty(self) -> None:
+        """Test with empty first string."""
+        assert dash_delimit("", "right") == " - right"
+
+    def test_second_empty(self) -> None:
+        """Test with empty second string."""
+        assert dash_delimit("left", "") == "left - "
