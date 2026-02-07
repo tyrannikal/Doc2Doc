@@ -56,6 +56,7 @@ from main import (
     stylize_title,
     sum_nested_list,
     word_count,
+    word_count_aggregator,
     word_count_memo,
     zipmap,
 )
@@ -1428,3 +1429,43 @@ class TestFixEllipsis:
     def test_preserves_three_dots(self) -> None:
         """Test that exactly three dots are preserved."""
         assert fix_ellipsis("ok...") == "ok..."
+
+
+class TestWordCountAggregator:
+    """Tests for word_count_aggregator function."""
+
+    def test_returns_callable(self) -> None:
+        """Test that it returns a callable."""
+        agg = word_count_aggregator()
+        assert callable(agg)
+
+    def test_counts_single_document(self) -> None:
+        """Test counting words in a single document."""
+        agg = word_count_aggregator()
+        assert agg("hello world") == 2
+
+    def test_accumulates_across_calls(self) -> None:
+        """Test that word count accumulates across multiple calls."""
+        agg = word_count_aggregator()
+        assert agg("hello world") == 2
+        assert agg("one more") == 4
+        assert agg("three more words") == 7
+
+    def test_empty_string(self) -> None:
+        """Test that empty string adds zero to count."""
+        agg = word_count_aggregator()
+        assert agg("") == 0
+
+    def test_empty_after_nonempty(self) -> None:
+        """Test that empty string does not change accumulated count."""
+        agg = word_count_aggregator()
+        assert agg("two words") == 2
+        assert agg("") == 2
+
+    def test_separate_aggregators_are_independent(self) -> None:
+        """Test that separate aggregators have independent counts."""
+        agg1 = word_count_aggregator()
+        agg2 = word_count_aggregator()
+        agg1("hello world")
+        assert agg1("more") == 3
+        assert agg2("single") == 1

@@ -359,9 +359,6 @@ def get_filter_cmd(
     return filter_cmd
 
 
-# don't touch below this line
-
-
 def replace_bad(text: str) -> str:
     return text.replace("bad", "good")
 
@@ -372,6 +369,17 @@ def replace_ellipsis(text: str) -> str:
 
 def fix_ellipsis(text: str) -> str:
     return text.replace("....", "...")
+
+
+def word_count_aggregator() -> Callable[[str], int]:
+    count = 0
+
+    def doc_builder(doc: str) -> int:
+        nonlocal count
+        count += len(doc.split())
+        return count
+
+    return doc_builder
 
 
 def main() -> None:
