@@ -41,6 +41,7 @@ from main import (
     join,
     join_first_sentences,
     list_files,
+    new_collection,
     pair_document_with_format,
     remove_emphasis,
     remove_format,
@@ -1469,3 +1470,55 @@ class TestWordCountAggregator:
         agg1("hello world")
         assert agg1("more") == 3
         assert agg2("single") == 1
+
+
+class TestNewCollection:
+    """Tests for new_collection function."""
+
+    def test_returns_callable(self) -> None:
+        """Test that new_collection returns a callable."""
+        add_doc = new_collection([])
+        assert callable(add_doc)
+
+    def test_adds_document_to_empty_collection(self) -> None:
+        """Test adding a document to an initially empty collection."""
+        add_doc = new_collection([])
+        result = add_doc("new doc")
+        assert result == ["new doc"]
+
+    def test_adds_document_to_existing_collection(self) -> None:
+        """Test adding a document to a collection with initial docs."""
+        add_doc = new_collection(["doc1", "doc2"])
+        result = add_doc("doc3")
+        assert result == ["doc1", "doc2", "doc3"]
+
+    def test_accumulates_across_calls(self) -> None:
+        """Test that documents accumulate across multiple add_doc calls."""
+        add_doc = new_collection(["doc1"])
+        add_doc("doc2")
+        result = add_doc("doc3")
+        assert result == ["doc1", "doc2", "doc3"]
+
+    def test_does_not_mutate_original_list(self) -> None:
+        """Test that the original list passed in is not modified."""
+        initial = ["doc1", "doc2"]
+        original_copy = initial.copy()
+        add_doc = new_collection(initial)
+        add_doc("doc3")
+        assert initial == original_copy
+
+    def test_separate_collections_are_independent(self) -> None:
+        """Test that separate collections do not share state."""
+        add_doc1 = new_collection(["shared"])
+        add_doc2 = new_collection(["shared"])
+        add_doc1("only in 1")
+        result2 = add_doc2("only in 2")
+        assert result2 == ["shared", "only in 2"]
+
+    def test_multiple_adds_then_check(self) -> None:
+        """Test adding several documents sequentially."""
+        add_doc = new_collection([])
+        add_doc("a")
+        add_doc("b")
+        result = add_doc("c")
+        assert result == ["a", "b", "c"]

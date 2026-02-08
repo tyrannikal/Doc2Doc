@@ -382,6 +382,16 @@ def word_count_aggregator() -> Callable[[str], int]:
     return doc_builder
 
 
+def new_collection(initial_docs: list[str]) -> Callable[[str], list[str]]:
+    initial_docs_copy = initial_docs.copy()
+
+    def add_doc(document: str) -> list[str]:
+        initial_docs_copy.append(document)
+        return initial_docs_copy
+
+    return add_doc
+
+
 def main() -> None:
     db_errors = [
         "out of memory",

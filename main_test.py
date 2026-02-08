@@ -1,55 +1,54 @@
 from main import *
 
+
 run_cases = [
+    (["Dan Evans"], ["Charlie Prince"], ["Dan Evans", "Charlie Prince"]),
     (
-        [
-            "Welcome to the jungle",
-            "We've got fun and games",
-            "We've got everything you want honey",
-        ],
-        15,
-    )
+        ["Dan Evans", "Ben Wade"],
+        ["Alice Evans"],
+        ["Dan Evans", "Ben Wade", "Alice Evans"],
+    ),
+    (
+        ["Dan Evans", "Ben Wade", "Alice Evans"],
+        ["Doc Potter", "Butterfield"],
+        ["Dan Evans", "Ben Wade", "Alice Evans", "Doc Potter", "Butterfield"],
+    ),
 ]
 
 submit_cases = run_cases + [
     (
-        [
-            "We are the champions my friends",
-            "And we'll keep on fighting till the end",
-        ],
-        14,
+        ["Dan Evans", "Ben Wade", "Alice Evans"],
+        [],
+        ["Dan Evans", "Ben Wade", "Alice Evans"],
     ),
+    ([], ["William Evans"], ["William Evans"]),
     (
-        [
-            "I've got another confession to make",
-            "I'm your fool",
-            "Everyone's got their chains to break",
-            "Holdin' you",
-        ],
-        17,
+        ["Dan Evans", "Ben Wade"],
+        ["Charlie Prince", "Butterfield"],
+        ["Dan Evans", "Ben Wade", "Charlie Prince", "Butterfield"],
     ),
 ]
 
 
-def test(inputs, expected_output):
+def test(initial_docs, docs_to_add, expected_output):
     print("---------------------------------")
-    print(f"Input:")
-    for x in inputs:
-        print(f" * {x}")
+    print(f"Initial documents: {initial_docs}")
+    print(f"Documents to add: {docs_to_add}")
     print(f"Expected: {expected_output}")
-    aggregator = word_count_aggregator()
-
-    try:
-        for input in inputs:
-            result = aggregator(input)
-    except Exception as e:
-        result = e
+    copy_of_initial_docs = initial_docs.copy()
+    add_doc = new_collection(initial_docs)
+    result = initial_docs.copy()
+    for doc in docs_to_add:
+        result = add_doc(doc)
     print(f"Actual:   {result}")
-    if result == expected_output:
-        print("Pass")
-        return True
-    print("Fail")
-    return False
+    if copy_of_initial_docs != initial_docs:
+        print("Fail: You should not modify the initial list")
+        return False
+    if result != expected_output:
+        print("Fail: Unexpected result")
+        return False
+    print("Pass")
+    return True
 
 
 def main():
