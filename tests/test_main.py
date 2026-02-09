@@ -24,6 +24,7 @@ from main import (
     convert_file_format,
     convert_line,
     count_nested_levels,
+    css_styles,
     dash_delimit,
     doc_format_checker_and_converter,
     factorial_r,
@@ -1522,3 +1523,62 @@ class TestNewCollection:
         add_doc("b")
         result = add_doc("c")
         assert result == ["a", "b", "c"]
+
+
+class TestCssStyles:
+    """Tests for css_styles function."""
+
+    def test_returns_callable(self) -> None:
+        """Test that css_styles returns a callable."""
+        add_style = css_styles({})
+        assert callable(add_style)
+
+    def test_adds_style_to_empty_styles(self) -> None:
+        """Test adding a style to an initially empty styles dict."""
+        add_style = css_styles({})
+        result = add_style("body", "color", "red")
+        assert result == {"body": {"color": "red"}}
+
+    def test_adds_style_to_existing_selector(self) -> None:
+        """Test adding a property to an existing selector."""
+        add_style = css_styles({"body": {"color": "red"}})
+        result = add_style("body", "font-size", "12px")
+        assert result == {"body": {"color": "red", "font-size": "12px"}}
+
+    def test_adds_new_selector(self) -> None:
+        """Test adding a style to a new selector preserves existing ones."""
+        add_style = css_styles({"body": {"color": "red"}})
+        result = add_style("h1", "font-weight", "bold")
+        assert result == {"body": {"color": "red"}, "h1": {"font-weight": "bold"}}
+
+    def test_accumulates_across_calls(self) -> None:
+        """Test that styles accumulate across multiple calls."""
+        add_style = css_styles({})
+        add_style("body", "color", "red")
+        add_style("body", "margin", "0")
+        result = add_style("h1", "font-size", "24px")
+        assert result == {
+            "body": {"color": "red", "margin": "0"},
+            "h1": {"font-size": "24px"},
+        }
+
+    def test_does_not_mutate_original_dict(self) -> None:
+        """Test that the original dict passed in is not modified."""
+        initial: dict[str, dict[str, str]] = {"body": {"color": "red"}}
+        add_style = css_styles(initial)
+        add_style("body", "margin", "0")
+        assert initial == {"body": {"color": "red"}}
+
+    def test_overwrites_existing_property(self) -> None:
+        """Test that adding a duplicate property overwrites the value."""
+        add_style = css_styles({"body": {"color": "red"}})
+        result = add_style("body", "color", "blue")
+        assert result == {"body": {"color": "blue"}}
+
+    def test_separate_style_instances_are_independent(self) -> None:
+        """Test that separate css_styles instances do not share state."""
+        add_style1 = css_styles({"body": {}})
+        add_style2 = css_styles({"body": {}})
+        add_style1("body", "color", "red")
+        result2 = add_style2("body", "color", "blue")
+        assert result2 == {"body": {"color": "blue"}}

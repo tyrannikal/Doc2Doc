@@ -1,54 +1,33 @@
 from main import *
 
-
 run_cases = [
-    (["Dan Evans"], ["Charlie Prince"], ["Dan Evans", "Charlie Prince"]),
-    (
-        ["Dan Evans", "Ben Wade"],
-        ["Alice Evans"],
-        ["Dan Evans", "Ben Wade", "Alice Evans"],
-    ),
-    (
-        ["Dan Evans", "Ben Wade", "Alice Evans"],
-        ["Doc Potter", "Butterfield"],
-        ["Dan Evans", "Ben Wade", "Alice Evans", "Doc Potter", "Butterfield"],
-    ),
+    (12, "txt", 12),
+    (16, "md", 32),
 ]
 
 submit_cases = run_cases + [
-    (
-        ["Dan Evans", "Ben Wade", "Alice Evans"],
-        [],
-        ["Dan Evans", "Ben Wade", "Alice Evans"],
-    ),
-    ([], ["William Evans"], ["William Evans"]),
-    (
-        ["Dan Evans", "Ben Wade"],
-        ["Charlie Prince", "Butterfield"],
-        ["Dan Evans", "Ben Wade", "Charlie Prince", "Butterfield"],
-    ),
+    (14, "html", "invalid doc type"),
+    (0, "txt", 0),
+    (50, "md", 100),
 ]
 
 
-def test(initial_docs, docs_to_add, expected_output):
+def test(input1, input2, expected_output):
     print("---------------------------------")
-    print(f"Initial documents: {initial_docs}")
-    print(f"Documents to add: {docs_to_add}")
+    print(f"Inputs:")
+    print(f" * font_size: {input1}")
+    print(f" * doc_type: {input2}")
     print(f"Expected: {expected_output}")
-    copy_of_initial_docs = initial_docs.copy()
-    add_doc = new_collection(initial_docs)
-    result = initial_docs.copy()
-    for doc in docs_to_add:
-        result = add_doc(doc)
+    try:
+        result = converted_font_size(input1)(input2)
+    except Exception as error:
+        result = str(error)
     print(f"Actual:   {result}")
-    if copy_of_initial_docs != initial_docs:
-        print("Fail: You should not modify the initial list")
-        return False
-    if result != expected_output:
-        print("Fail: Unexpected result")
-        return False
-    print("Pass")
-    return True
+    if result == expected_output:
+        print("Pass")
+        return True
+    print("Fail")
+    return False
 
 
 def main():

@@ -1,3 +1,4 @@
+import copy
 from collections.abc import Callable
 from functools import reduce
 from typing import Any
@@ -5,6 +6,7 @@ from typing import Any
 type NestedList = list[int | NestedList]
 type NestedDict = dict[str, None | NestedDict]
 type NestedDocument = dict[int, NestedDocument]
+
 
 HEX_COLOR_LENGTH = 6
 default_commands = {}
@@ -390,6 +392,35 @@ def new_collection(initial_docs: list[str]) -> Callable[[str], list[str]]:
         return initial_docs_copy
 
     return add_doc
+
+
+def css_styles(
+    initial_styles: dict[str, dict[str, str]],
+) -> Callable[[str, str, str], dict[str, dict[str, str]]]:
+    initial_styles_copy = copy.deepcopy(initial_styles)
+
+    def add_style(
+        selector: str, css_property: str, value: str
+    ) -> dict[str, dict[str, str]]:
+        if selector not in initial_styles_copy:
+            initial_styles_copy[selector] = {}
+        initial_styles_copy[selector][css_property] = value
+        return initial_styles_copy
+
+    return add_style
+
+
+def converted_font_size(font_size: int) -> Callable[[str], int]:
+    def converted_doc(doc_type: str) -> int:
+        if doc_type == "txt":
+            return font_size
+        if doc_type == "md":
+            return font_size * 2
+        if doc_type == "docx":
+            return font_size * 3
+        raise ValueError("invalid doc type")
+
+    return converted_doc
 
 
 def main() -> None:
