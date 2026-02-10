@@ -1,53 +1,131 @@
 from main import *
 
-
 run_cases = [
     (
-        "seal",
-        "https://imgur.com/oglPAXK",
-        "this is a seal",
-        '![seal](https://imgur.com/oglPAXK "this is a seal")',
+        (1920, 1080),
+        (800, 600),
+        [
+            (
+                (2560, 1440),
+                (1920, 1080),
+            ),
+            (
+                (500, 400),
+                (800, 600),
+            ),
+            (
+                (1600, 1000),
+                (1600, 1000),
+            ),
+            (
+                (800, 600),
+                (800, 600),
+            ),
+            (
+                (1920, 1080),
+                (1920, 1080),
+            ),
+        ],
+        None,
     ),
     (
-        "cinnamon roll",
-        "https://imgur.com/a/0MyOP",
-        "this is a cinnamon roll",
-        '![cinnamon roll](https://imgur.com/a/0MyOP "this is a cinnamon roll")',
+        (1200, 800),
+        (1600, 800),
+        [],
+        "minimum size cannot exceed maximum size",
+    ),
+    (
+        (1600, 800),
+        (1200, 1200),
+        [],
+        "minimum size cannot exceed maximum size",
     ),
 ]
 
 submit_cases = run_cases + [
     (
-        "banana",
-        "https://imgur.com/nlArAKx",
+        (1600, 1200),
+        (1200, 800),
+        [
+            (
+                (1601, 799),
+                (1600, 800),
+            ),
+            (
+                (1199, 1201),
+                (1200, 1200),
+            ),
+        ],
         None,
-        "![banana](https://imgur.com/nlArAKx)",
     ),
     (
-        "not an image",
-        "https://en.wikipedia.org/wiki/Variable_(computer_science)",
-        "showing escape characters",
-        '![not an image](https://en.wikipedia.org/wiki/Variable_%28computer_science%29 "showing escape characters")',
+        (600, 600),
+        (600, 600),
+        [
+            (
+                (601, 601),
+                (600, 600),
+            ),
+            (
+                (599, 599),
+                (600, 600),
+            ),
+        ],
+        None,
+    ),
+    (
+        (100, 100),
+        (),
+        [
+            (
+                (200, 200),
+                (100, 100),
+            ),
+            (
+                (0, 0),
+                (0, 0),
+            ),
+        ],
+        None,
     ),
 ]
 
 
-def test(alt_text, url, title, expected_output):
+def test(max_size, min_size, image_sizes, expected_error):
     print("---------------------------------")
-    print(f"Inputs:")
-    print(f"* Alt Text: {alt_text}")
-    print(f"* URL: {url}")
-    print(f"* Title: {title}")
-    print(f"Expected: {expected_output}")
-    result = create_markdown_image(alt_text)(url)()
-    if title:
-        result = create_markdown_image(alt_text)(url)(title)
-    print(f"Actual:   {result}")
-    if result == expected_output:
-        print("Pass")
-        return True
-    print("Fail")
-    return False
+    print(f"Max Size:  {max_size}")
+    if min_size:
+        print(f"Min Size:  {min_size}")
+    try:
+        resize_image = new_resizer(*max_size)(*min_size)
+    except Exception as e:
+        print(f"Expected Error: {expected_error}")
+        print(f"  Actual Error: {str(e)}")
+        if str(e) == expected_error:
+            print("Pass")
+            return True
+        print("Fail")
+        return False
+    if expected_error is not None:
+        print(f"Expected Error: {expected_error}")
+        print("Fail")
+        return False
+    print("Resizing Images...")
+    failed = False
+    for size in image_sizes:
+        result = resize_image(*size[0])
+        print(f" * Image Size: {size[0]}")
+        print(f" *   Expected: {size[1]}")
+        print(f" *     Actual: {result}")
+        if result == size[1]:
+            print("Pass")
+        else:
+            print("Fail")
+            print(result)
+            print(size[1])
+            failed = True
+    passed = not failed
+    return passed
 
 
 def main():

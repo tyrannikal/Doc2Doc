@@ -46,6 +46,7 @@ from main import (
     lines_with_sequence,
     list_files,
     new_collection,
+    new_resizer,
     pair_document_with_format,
     remove_emphasis,
     remove_format,
@@ -1727,3 +1728,72 @@ class TestCreateMarkdownImage:
         img2 = create_markdown_image("second")("https://two.com/b.png")
         assert img1("") == "![first](https://one.com/a.png)"
         assert img2("") == "![second](https://two.com/b.png)"
+
+
+class TestNewResizer:
+    """Tests for new_resizer function."""
+
+    def test_returns_callable_chain(self) -> None:
+        """Test that new_resizer returns nested callables."""
+        get_resized = new_resizer(800, 600)
+        assert callable(get_resized)
+        resize = get_resized(100, 100)
+        assert callable(resize)
+
+    def test_clamps_width_to_max(self) -> None:
+        """Test that width exceeding max is clamped."""
+        resize = new_resizer(800, 600)(0, 0)
+        assert resize(1000, 400) == (800, 400)
+
+    def test_clamps_height_to_max(self) -> None:
+        """Test that height exceeding max is clamped."""
+        resize = new_resizer(800, 600)(0, 0)
+        assert resize(400, 900) == (400, 600)
+
+    def test_clamps_width_to_min(self) -> None:
+        """Test that width below min is raised to min."""
+        resize = new_resizer(800, 600)(200, 100)
+        assert resize(50, 300) == (200, 300)
+
+    def test_clamps_height_to_min(self) -> None:
+        """Test that height below min is raised to min."""
+        resize = new_resizer(800, 600)(200, 100)
+        assert resize(300, 50) == (300, 100)
+
+    def test_clamps_both_dimensions(self) -> None:
+        """Test clamping both width and height simultaneously."""
+        resize = new_resizer(800, 600)(200, 100)
+        assert resize(1000, 50) == (800, 100)
+
+    def test_value_within_bounds_unchanged(self) -> None:
+        """Test that values within bounds are returned as-is."""
+        resize = new_resizer(800, 600)(100, 100)
+        assert resize(400, 300) == (400, 300)
+
+    def test_value_at_exact_bounds(self) -> None:
+        """Test that values at exactly min and max are unchanged."""
+        resize = new_resizer(800, 600)(200, 100)
+        assert resize(200, 100) == (200, 100)
+        assert resize(800, 600) == (800, 600)
+
+    def test_min_exceeds_max_width_raises(self) -> None:
+        """Test that min_width > max_width raises ValueError."""
+        with pytest.raises(ValueError, match="minimum size cannot exceed maximum size"):
+            new_resizer(800, 600)(900, 0)
+
+    def test_min_exceeds_max_height_raises(self) -> None:
+        """Test that min_height > max_height raises ValueError."""
+        with pytest.raises(ValueError, match="minimum size cannot exceed maximum size"):
+            new_resizer(800, 600)(0, 700)
+
+    def test_zero_min_bounds(self) -> None:
+        """Test with zero minimum bounds."""
+        resize = new_resizer(800, 600)(0, 0)
+        assert resize(0, 0) == (0, 0)
+
+    def test_separate_resizers_are_independent(self) -> None:
+        """Test that separate resizers maintain independent bounds."""
+        small = new_resizer(100, 100)(0, 0)
+        large = new_resizer(2000, 2000)(0, 0)
+        assert small(500, 500) == (100, 100)
+        assert large(500, 500) == (500, 500)

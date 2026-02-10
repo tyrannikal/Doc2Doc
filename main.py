@@ -457,6 +457,25 @@ def create_markdown_image(alt_text: str) -> Callable[[str], Callable[[str], str]
     return prep_url
 
 
+def new_resizer(
+    max_width: int, max_height: int
+) -> Callable[[int, int], Callable[[int, int], tuple[int, int]]]:
+    def get_resized_image(
+        min_width: int = 0, min_height: int = 0
+    ) -> Callable[[int, int], tuple[int, int]]:
+        if min_width > max_width or min_height > max_height:
+            raise ValueError("minimum size cannot exceed maximum size")
+
+        def resize_image(width: int, height: int) -> tuple[int, int]:
+            return max(min_width, min(max_width, width)), max(
+                min_height, min(max_height, height)
+            )
+
+        return resize_image
+
+    return get_resized_image
+
+
 def main() -> None:
     db_errors = [
         "out of memory",
