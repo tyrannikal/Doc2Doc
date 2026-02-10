@@ -25,6 +25,7 @@ from main import (
     convert_line,
     converted_font_size,
     count_nested_levels,
+    create_markdown_image,
     css_styles,
     dash_delimit,
     doc_format_checker_and_converter,
@@ -1674,3 +1675,55 @@ class TestLinesWithSequence:
         """Test with a single character sequence."""
         count = lines_with_sequence("a")(1)("a\nb\na")
         assert count == 2
+
+
+class TestCreateMarkdownImage:
+    """Tests for create_markdown_image function."""
+
+    def test_returns_callable_chain(self) -> None:
+        """Test that create_markdown_image returns nested callables."""
+        prep_url = create_markdown_image("alt")
+        assert callable(prep_url)
+        prep_title = prep_url("https://example.com/img.png")
+        assert callable(prep_title)
+
+    def test_basic_image_no_title(self) -> None:
+        """Test generating a markdown image without a title."""
+        result = create_markdown_image("a cat")("https://example.com/cat.png")("")
+        assert result == "![a cat](https://example.com/cat.png)"
+
+    def test_image_with_title(self) -> None:
+        """Test generating a markdown image with a title."""
+        result = create_markdown_image("a cat")("https://example.com/cat.png")(
+            "Cat photo"
+        )
+        assert result == '![a cat](https://example.com/cat.png "Cat photo")'
+
+    def test_empty_string_title(self) -> None:
+        """Test that passing empty string title returns image without title."""
+        result = create_markdown_image("logo")("https://example.com/logo.svg")("")
+        assert result == "![logo](https://example.com/logo.svg)"
+
+    def test_url_with_parentheses_escaped(self) -> None:
+        """Test that parentheses in the URL are percent-encoded."""
+        result = create_markdown_image("img")("https://example.com/image_(1).png")("")
+        assert result == "![img](https://example.com/image_%281%29.png)"
+
+    def test_url_with_parentheses_and_title(self) -> None:
+        """Test URL parenthesis escaping combined with a title."""
+        result = create_markdown_image("img")("https://example.com/image_(1).png")(
+            "Photo"
+        )
+        assert result == '![img](https://example.com/image_%281%29.png "Photo")'
+
+    def test_empty_alt_text(self) -> None:
+        """Test with empty alt text."""
+        result = create_markdown_image("")("https://example.com/img.png")("")
+        assert result == "![](https://example.com/img.png)"
+
+    def test_separate_instances_are_independent(self) -> None:
+        """Test that separate calls produce independent closures."""
+        img1 = create_markdown_image("first")("https://one.com/a.png")
+        img2 = create_markdown_image("second")("https://two.com/b.png")
+        assert img1("") == "![first](https://one.com/a.png)"
+        assert img2("") == "![second](https://two.com/b.png)"

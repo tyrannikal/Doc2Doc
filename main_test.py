@@ -3,54 +3,47 @@ from main import *
 
 run_cases = [
     (
-        "#",
-        3,
-        """###
-@##
-$$$
-###""",
-        2,
+        "seal",
+        "https://imgur.com/oglPAXK",
+        "this is a seal",
+        '![seal](https://imgur.com/oglPAXK "this is a seal")',
     ),
     (
-        "$",
-        2,
-        """$$$
-$
-***
-@@@
-$$
-$$$""",
-        3,
+        "cinnamon roll",
+        "https://imgur.com/a/0MyOP",
+        "this is a cinnamon roll",
+        '![cinnamon roll](https://imgur.com/a/0MyOP "this is a cinnamon roll")',
     ),
 ]
 
 submit_cases = run_cases + [
-    ("%", 1, "", 0),
     (
-        "*",
-        3,
-        """***
-*
-$$$$$$
-xxx
-****
-***
-***""",
-        4,
+        "banana",
+        "https://imgur.com/nlArAKx",
+        None,
+        "![banana](https://imgur.com/nlArAKx)",
+    ),
+    (
+        "not an image",
+        "https://en.wikipedia.org/wiki/Variable_(computer_science)",
+        "showing escape characters",
+        '![not an image](https://en.wikipedia.org/wiki/Variable_%28computer_science%29 "showing escape characters")',
     ),
 ]
 
 
-def test(char, length, doc, expected_output):
+def test(alt_text, url, title, expected_output):
     print("---------------------------------")
-    print(f"Input char: {char}")
-    print(f"Input length: {length}")
-    print(f"Input doc:")
-    print(doc)
+    print(f"Inputs:")
+    print(f"* Alt Text: {alt_text}")
+    print(f"* URL: {url}")
+    print(f"* Title: {title}")
     print(f"Expected: {expected_output}")
-    num_lines = lines_with_sequence(char)(length)(doc)
-    print(f"Actual:   {num_lines}")
-    if num_lines == expected_output:
+    result = create_markdown_image(alt_text)(url)()
+    if title:
+        result = create_markdown_image(alt_text)(url)(title)
+    print(f"Actual:   {result}")
+    if result == expected_output:
         print("Pass")
         return True
     print("Fail")

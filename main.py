@@ -432,12 +432,29 @@ def lines_with_sequence(char: str) -> Callable[[int], Callable[[str], int]]:
 
         def with_length(doc: str) -> int:
             doc_lines = doc.split()
-
             return reduce(count_sequence, doc_lines, 0)
 
         return with_length
 
     return with_char
+
+
+def create_markdown_image(alt_text: str) -> Callable[[str], Callable[[str], str]]:
+    fomatted_alt_text = f"![{alt_text}]"
+
+    def prep_url(url: str) -> Callable[[str], str]:
+        prepped_url = (
+            f"{fomatted_alt_text}({url.replace('(', '%28').replace(')', '%29')})"
+        )
+
+        def prep_title(title: str = "") -> str:
+            if title:
+                return f'{prepped_url[: len(prepped_url) - 1]} "{title}")'
+            return prepped_url
+
+        return prep_title
+
+    return prep_url
 
 
 def main() -> None:
