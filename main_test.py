@@ -1,29 +1,56 @@
 from main import *
 
+
 run_cases = [
-    (12, "txt", 12),
-    (16, "md", 32),
+    (
+        "#",
+        3,
+        """###
+@##
+$$$
+###""",
+        2,
+    ),
+    (
+        "$",
+        2,
+        """$$$
+$
+***
+@@@
+$$
+$$$""",
+        3,
+    ),
 ]
 
 submit_cases = run_cases + [
-    (14, "html", "invalid doc type"),
-    (0, "txt", 0),
-    (50, "md", 100),
+    ("%", 1, "", 0),
+    (
+        "*",
+        3,
+        """***
+*
+$$$$$$
+xxx
+****
+***
+***""",
+        4,
+    ),
 ]
 
 
-def test(input1, input2, expected_output):
+def test(char, length, doc, expected_output):
     print("---------------------------------")
-    print(f"Inputs:")
-    print(f" * font_size: {input1}")
-    print(f" * doc_type: {input2}")
+    print(f"Input char: {char}")
+    print(f"Input length: {length}")
+    print(f"Input doc:")
+    print(doc)
     print(f"Expected: {expected_output}")
-    try:
-        result = converted_font_size(input1)(input2)
-    except Exception as error:
-        result = str(error)
-    print(f"Actual:   {result}")
-    if result == expected_output:
+    num_lines = lines_with_sequence(char)(length)(doc)
+    print(f"Actual:   {num_lines}")
+    if num_lines == expected_output:
         print("Pass")
         return True
     print("Fail")

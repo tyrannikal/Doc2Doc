@@ -423,6 +423,23 @@ def converted_font_size(font_size: int) -> Callable[[str], int]:
     return converted_doc
 
 
+def lines_with_sequence(char: str) -> Callable[[int], Callable[[str], int]]:
+    def with_char(length: int) -> Callable[[str], int]:
+        sequence = char * length
+
+        def count_sequence(count: int, line: str) -> int:
+            return count + 1 if sequence in line else count
+
+        def with_length(doc: str) -> int:
+            doc_lines = doc.split()
+
+            return reduce(count_sequence, doc_lines, 0)
+
+        return with_length
+
+    return with_char
+
+
 def main() -> None:
     db_errors = [
         "out of memory",

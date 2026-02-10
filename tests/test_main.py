@@ -23,6 +23,7 @@ from main import (
     convert_case,
     convert_file_format,
     convert_line,
+    converted_font_size,
     count_nested_levels,
     css_styles,
     dash_delimit,
@@ -41,6 +42,7 @@ from main import (
     is_hexadecimal,
     join,
     join_first_sentences,
+    lines_with_sequence,
     list_files,
     new_collection,
     pair_document_with_format,
@@ -1582,3 +1584,93 @@ class TestCssStyles:
         add_style1("body", "color", "red")
         result2 = add_style2("body", "color", "blue")
         assert result2 == {"body": {"color": "blue"}}
+
+
+class TestConvertedFontSize:
+    """Tests for converted_font_size function."""
+
+    def test_returns_callable(self) -> None:
+        """Test that converted_font_size returns a callable."""
+        converter = converted_font_size(12)
+        assert callable(converter)
+
+    def test_txt_returns_same_size(self) -> None:
+        """Test that txt doc type returns the original font size."""
+        converter = converted_font_size(12)
+        assert converter("txt") == 12
+
+    def test_md_returns_double_size(self) -> None:
+        """Test that md doc type returns double the font size."""
+        converter = converted_font_size(16)
+        assert converter("md") == 32
+
+    def test_docx_returns_triple_size(self) -> None:
+        """Test that docx doc type returns triple the font size."""
+        converter = converted_font_size(10)
+        assert converter("docx") == 30
+
+    def test_invalid_doc_type_raises(self) -> None:
+        """Test that an invalid doc type raises ValueError."""
+        converter = converted_font_size(12)
+        with pytest.raises(ValueError, match="invalid doc type"):
+            converter("html")
+
+    def test_zero_font_size(self) -> None:
+        """Test that zero font size returns zero for all valid types."""
+        converter = converted_font_size(0)
+        assert converter("txt") == 0
+        assert converter("md") == 0
+        assert converter("docx") == 0
+
+    def test_separate_converters_are_independent(self) -> None:
+        """Test that separate converters maintain their own font size."""
+        small = converted_font_size(8)
+        large = converted_font_size(24)
+        assert small("md") == 16
+        assert large("md") == 48
+
+
+class TestLinesWithSequence:
+    """Tests for lines_with_sequence function."""
+
+    def test_returns_callable_chain(self) -> None:
+        """Test that lines_with_sequence returns nested callables."""
+        with_char = lines_with_sequence("#")
+        assert callable(with_char)
+        with_length = with_char(3)
+        assert callable(with_length)
+
+    def test_counts_lines_with_matching_sequence(self) -> None:
+        """Test counting lines containing the exact sequence."""
+        count = lines_with_sequence("#")(3)("###\n@##\n$$$\n###")
+        assert count == 2
+
+    def test_sequence_as_substring(self) -> None:
+        """Test that sequence matches as a substring within lines."""
+        count = lines_with_sequence("$")(2)("$$$\n$\n***\n@@@\n$$\n$$$")
+        assert count == 3
+
+    def test_empty_doc_returns_zero(self) -> None:
+        """Test that an empty document returns zero."""
+        count = lines_with_sequence("%")(1)("")
+        assert count == 0
+
+    def test_longer_doc_with_multiple_matches(self) -> None:
+        """Test a longer document with multiple matching lines."""
+        count = lines_with_sequence("*")(3)("***\n*\n$$$$$$\nxxx\n****\n***\n***")
+        assert count == 4
+
+    def test_no_lines_match(self) -> None:
+        """Test when no lines contain the sequence."""
+        count = lines_with_sequence("@")(2)("abc\ndef\nghi")
+        assert count == 0
+
+    def test_all_lines_match(self) -> None:
+        """Test when all lines contain the sequence."""
+        count = lines_with_sequence("x")(1)("ax\nbx\ncx")
+        assert count == 3
+
+    def test_length_one_sequence(self) -> None:
+        """Test with a single character sequence."""
+        count = lines_with_sequence("a")(1)("a\nb\na")
+        assert count == 2
