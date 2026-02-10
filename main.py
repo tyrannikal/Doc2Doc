@@ -476,6 +476,27 @@ def new_resizer(
     return get_resized_image
 
 
+def file_type_aggregator(
+    func_to_decorate: Callable[[str, str], str],
+) -> Callable[[str, str], tuple[str, dict[str, int]]]:
+    counts: dict[str, int] = {}
+
+    def wrapper(doc: str, file_type: str) -> tuple[str, dict[str, int]]:
+        if file_type not in counts:
+            counts[file_type] = 0
+        counts[file_type] += 1
+        result = func_to_decorate(doc, file_type)
+
+        return result, counts
+
+    return wrapper
+
+
+@file_type_aggregator
+def process_doc(doc: str, file_type: str) -> str:
+    return f"Processing doc: '{doc}'. File Type: {file_type}"
+
+
 def main() -> None:
     db_errors = [
         "out of memory",
