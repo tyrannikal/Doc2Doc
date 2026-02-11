@@ -31,6 +31,7 @@ from main import (
     doc_format_checker_and_converter,
     factorial_r,
     file_to_prompt,
+    file_type_aggregator,
     file_type_getter,
     find_longest_word,
     fix_ellipsis,
@@ -48,6 +49,7 @@ from main import (
     new_collection,
     new_resizer,
     pair_document_with_format,
+    process_doc,
     remove_emphasis,
     remove_format,
     remove_invalid_lines,
@@ -1205,6 +1207,11 @@ class TestCountNestedLevels:
         }
         assert count_nested_levels(tree, 5) == 4
 
+    def test_skips_none_value_and_continues_search(self) -> None:
+        """Test that a None value is skipped without recursion."""
+        tree: dict[int, Any] = {1: None, 2: {3: {}}}
+        assert count_nested_levels(tree, 3) == 2
+
 
 class TestGetLogger:
     """Tests for get_logger function."""
@@ -1797,3 +1804,91 @@ class TestNewResizer:
         large = new_resizer(2000, 2000)(0, 0)
         assert small(500, 500) == (100, 100)
         assert large(500, 500) == (500, 500)
+
+
+class TestFileTypeAggregator:
+    """Tests for file_type_aggregator decorator."""
+
+    def test_returns_result_and_counts(self) -> None:
+        """Test that decorated function returns result and counts dict."""
+
+        @file_type_aggregator
+        def dummy(doc: str, file_type: str) -> str:
+            return f"{doc}-{file_type}"
+
+        result, counts = dummy("hello", "txt")
+        assert result == "hello-txt"
+        assert counts == {"txt": 1}
+
+    def test_accumulates_counts_per_file_type(self) -> None:
+        """Test that counts accumulate per file type across calls."""
+
+        @file_type_aggregator
+        def dummy(doc: str, _file_type: str) -> str:
+            return doc
+
+        dummy("a", "txt")
+        dummy("b", "txt")
+        _, counts = dummy("c", "pdf")
+        assert counts == {"txt": 2, "pdf": 1}
+
+    def test_new_file_type_starts_at_one(self) -> None:
+        """Test that a new file type starts with count of 1."""
+
+        @file_type_aggregator
+        def dummy(doc: str, _file_type: str) -> str:
+            return doc
+
+        _, counts = dummy("a", "md")
+        assert counts["md"] == 1
+
+    def test_preserves_decorated_function_result(self) -> None:
+        """Test that the original function's return value is preserved."""
+
+        @file_type_aggregator
+        def upper_doc(doc: str, _file_type: str) -> str:
+            return doc.upper()
+
+        result, _ = upper_doc("hello", "txt")
+        assert result == "HELLO"
+
+    def test_separate_decorated_functions_have_independent_counts(self) -> None:
+        """Test that separate decorated functions have independent state."""
+
+        @file_type_aggregator
+        def func_a(doc: str, _file_type: str) -> str:
+            return doc
+
+        @file_type_aggregator
+        def func_b(doc: str, _file_type: str) -> str:
+            return doc
+
+        func_a("x", "txt")
+        func_a("y", "txt")
+        _, counts_b = func_b("z", "txt")
+        assert counts_b == {"txt": 1}
+
+
+class TestProcessDoc:
+    """Tests for process_doc function."""
+
+    def test_returns_formatted_string_and_counts(self) -> None:
+        """Test that process_doc returns expected format and counts."""
+        result, counts = process_doc("my doc", "pdf")  # pylint: disable=no-member
+        assert result == "Processing doc: 'my doc'. File Type: pdf"
+        assert "pdf" in counts
+
+    def test_counts_accumulate(self) -> None:
+        """Test that calling process_doc accumulates file type counts."""
+        initial_result, initial_counts = process_doc("a", "txt")
+        assert initial_result == "Processing doc: 'a'. File Type: txt"
+        txt_count = initial_counts.get("txt", 0)  # pylint: disable=no-member
+        _, updated_counts = process_doc("b", "txt")
+        assert updated_counts["txt"] == txt_count + 1  # pylint: disable=invalid-sequence-index
+
+    def test_different_file_types_tracked_separately(self) -> None:
+        """Test that different file types are tracked independently."""
+        _, counts = process_doc("doc", "html")
+        html_count = counts["html"]  # pylint: disable=invalid-sequence-index
+        _, counts = process_doc("doc", "html")
+        assert counts["html"] == html_count + 1  # pylint: disable=invalid-sequence-index
