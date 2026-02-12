@@ -1,58 +1,82 @@
-from formatters import *
-from decorators import *
+
+from main import *
 
 run_cases = [
     (
-        ("# We like to play it all", "## Welcome to Tally Hall"),
-        {},
-        concat,
-        """  First: We like to play it all
-  Second: Welcome to Tally Hall""",
+        "aibohphobia",
+        True,
     ),
     (
-        set(),
-        {
-            "title": "Why Python is Great",
-            "body": "Maybe it isn't",
-            "conclusion": "## That's why Python is great!",
-        },
-        format_as_essay,
-        """  Title: Why Python is Great
-  Body: Maybe it isn't
-  Conclusion: That's why Python is great!""",
+        "eve",
+        True,
+    ),
+    (
+        "level",
+        True,
+    ),
+    (
+        "",
+        True,
+    ),
+    (
+        "tat",
+        True,
+    ),
+    (
+        "rotator",
+        True,
+    ),
+    (
+        "potato",
+        False,
     ),
 ]
+
 
 submit_cases = run_cases + [
     (
-        ("# Boots' grocery list", "Salmon, gems, arcanum crystals"),
-        {
-            "conclusion": "## Don't forget!",
-        },
-        format_as_essay,
-        """  Title: Boots' grocery list
-  Body: Salmon, gems, arcanum crystals
-  Conclusion: Don't forget!""",
+        "a",
+        True,
+    ),
+    (
+        "apple",
+        False,
+    ),
+    (
+        "redivider",
+        True,
+    ),
+    (
+        "divide",
+        False,
+    ),
+    (
+        "kayak",
+        True,
+    ),
+    (
+        "river",
+        False,
     ),
 ]
 
 
-def test(args, kwargs, func, expected_output):
+def is_lru_cache_imported_from_functools():
+    func_name = "lru_cache"
+    module_name = "functools"
+    return (
+        func_name in globals()
+        and callable(globals()[func_name])
+        and globals()[func_name].__module__ == module_name
+    ) or module_name in globals()
+
+
+def test(input, expected_output):
     print("---------------------------------")
-    print(f"Positional Arguments:")
-    for arg in args:
-        print(f" * {arg}")
-    print(f"Keyword Arguments:")
-    for key, value in kwargs.items():
-        print(f" * {key}: {value}")
-    print(f"Expected:")
-    print(expected_output)
-    try:
-        result = func(*args, **kwargs)
-    except Exception as error:
-        result = f"Error: {error}"
-    print(f"Actual:")
-    print(result)
+    print(f"Input: '{input}'")
+    print(f"Expected: {expected_output}")
+    result = is_palindrome(input)
+    print(f"Actual:   {result}")
     if result == expected_output:
         print("Pass")
         return True
@@ -63,6 +87,15 @@ def test(args, kwargs, func, expected_output):
 def main():
     passed = 0
     failed = 0
+    print("---------------------------------")
+    if is_lru_cache_imported_from_functools():
+        print("lru_cache was imported from functools")
+        print("Pass")
+        passed = 1
+    else:
+        failed = 1
+        print("lru_cache was not imported from functools")
+        print("Fail")
     skipped = len(submit_cases) - len(test_cases)
     for test_case in test_cases:
         correct = test(*test_case)

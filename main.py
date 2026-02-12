@@ -1,6 +1,6 @@
 import copy
 from collections.abc import Callable
-from functools import reduce
+from functools import lru_cache, reduce
 from typing import Any
 
 type NestedList = list[int | NestedList]
@@ -495,6 +495,13 @@ def file_type_aggregator(
 @file_type_aggregator
 def process_doc(doc: str, file_type: str) -> str:
     return f"Processing doc: '{doc}'. File Type: {file_type}"
+
+
+@lru_cache
+def is_palindrome(word: str) -> bool:
+    return all(
+        char == char_rev for char, char_rev in zip(word, reversed(word), strict=True)
+    )
 
 
 def main() -> None:

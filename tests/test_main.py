@@ -42,6 +42,7 @@ from main import (
     get_median_font_size,
     hex_to_rgb,
     is_hexadecimal,
+    is_palindrome,
     join,
     join_first_sentences,
     lines_with_sequence,
@@ -1892,3 +1893,35 @@ class TestProcessDoc:
         html_count = counts["html"]  # pylint: disable=invalid-sequence-index
         _, counts = process_doc("doc", "html")
         assert counts["html"] == html_count + 1  # pylint: disable=invalid-sequence-index
+
+
+class TestIsPalindrome:
+    """Tests for is_palindrome function."""
+
+    def test_simple_palindrome(self) -> None:
+        """Test that a simple palindrome returns True."""
+        assert is_palindrome("racecar") is True
+
+    def test_single_character(self) -> None:
+        """Test that a single character is a palindrome."""
+        assert is_palindrome("a") is True
+
+    def test_empty_string(self) -> None:
+        """Test that an empty string is a palindrome."""
+        assert is_palindrome("") is True
+
+    def test_two_char_palindrome(self) -> None:
+        """Test that a two character palindrome returns True."""
+        assert is_palindrome("aa") is True
+
+    def test_not_palindrome(self) -> None:
+        """Test that a non-palindrome returns False."""
+        assert is_palindrome("hello") is False
+
+    def test_even_length_palindrome(self) -> None:
+        """Test an even-length palindrome."""
+        assert is_palindrome("abba") is True
+
+    def test_one_char_difference(self) -> None:
+        """Test that a near-palindrome returns False."""
+        assert is_palindrome("racecab") is False
