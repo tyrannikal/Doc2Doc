@@ -504,6 +504,27 @@ def is_palindrome(word: str) -> bool:
     )
 
 
+def replacer(
+    old: str, new: str
+) -> Callable[[Callable[[str], str]], Callable[[str], str]]:
+    def replace(decorated_func: Callable[[str], str]) -> Callable[[str], str]:
+        def wrapper(text: str) -> str:
+            return decorated_func(text.replace(old, new))
+
+        return wrapper
+
+    return replace
+
+
+@replacer("&", "&amp;")
+@replacer("<", "&lt;")
+@replacer(">", "&gt;")
+@replacer('"', "&quot;")
+@replacer("'", "&#x27;")
+def tag_pre(text: str) -> str:
+    return f"<pre>{text}</pre>"
+
+
 def main() -> None:
     db_errors = [
         "out of memory",

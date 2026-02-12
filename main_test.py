@@ -1,81 +1,50 @@
 
 from main import *
 
+
 run_cases = [
     (
-        "aibohphobia",
-        True,
+        replacer("faith", "salmon")(lambda x: x),
+        'replacer("faith", "salmon")(lambda x: x)',
+        "I find your lack of faith disturbing, young Skywalker.",
+        "I find your lack of salmon disturbing, young Skywalker.",
     ),
     (
-        "eve",
-        True,
+        replacer("paragraph", "span")(replacer("p>", "span>")(lambda x: x)),
+        'replacer("paragraph", "span")(replacer("p>", "span>")(lambda x: x))',
+        "<p>Here is a paragraph</p>",
+        "<span>Here is a span</span>",
     ),
     (
-        "level",
-        True,
-    ),
-    (
-        "",
-        True,
-    ),
-    (
-        "tat",
-        True,
-    ),
-    (
-        "rotator",
-        True,
-    ),
-    (
-        "potato",
-        False,
+        tag_pre,
+        "tag_pre",
+        '<a href="https://blog.boot.dev/wiki/troubleshoot-code-editor-issues/">link</a>',
+        "<pre>&lt;a href=&quot;https://blog.boot.dev/wiki/troubleshoot-code-editor-issues/&quot;&gt;link&lt;/a&gt;</pre>",
     ),
 ]
-
 
 submit_cases = run_cases + [
     (
-        "a",
-        True,
+        tag_pre,
+        "tag_pre",
+        '<img src="https://imgur.com/a/VlMAK0B" alt="mystery">',
+        "<pre>&lt;img src=&quot;https://imgur.com/a/VlMAK0B&quot; alt=&quot;mystery&quot;&gt;</pre>",
     ),
     (
-        "apple",
-        False,
-    ),
-    (
-        "redivider",
-        True,
-    ),
-    (
-        "divide",
-        False,
-    ),
-    (
-        "kayak",
-        True,
-    ),
-    (
-        "river",
-        False,
+        tag_pre,
+        "tag_pre",
+        "<p>This paragraph has <em>italic text</em></p>",
+        "<pre>&lt;p&gt;This paragraph has &lt;em&gt;italic text&lt;/em&gt;&lt;/p&gt;</pre>",
     ),
 ]
 
 
-def is_lru_cache_imported_from_functools():
-    func_name = "lru_cache"
-    module_name = "functools"
-    return (
-        func_name in globals()
-        and callable(globals()[func_name])
-        and globals()[func_name].__module__ == module_name
-    ) or module_name in globals()
-
-
-def test(input, expected_output):
+def test(func, func_name, input, expected_output):
     print("---------------------------------")
-    print(f"Input: '{input}'")
+    print(f"Function: {func_name}")
+    print(f"    Input: {input}")
     print(f"Expected: {expected_output}")
-    result = is_palindrome(input)
+    result = func(input)
     print(f"Actual:   {result}")
     if result == expected_output:
         print("Pass")
@@ -87,15 +56,6 @@ def test(input, expected_output):
 def main():
     passed = 0
     failed = 0
-    print("---------------------------------")
-    if is_lru_cache_imported_from_functools():
-        print("lru_cache was imported from functools")
-        print("Pass")
-        passed = 1
-    else:
-        failed = 1
-        print("lru_cache was not imported from functools")
-        print("Fail")
     skipped = len(submit_cases) - len(test_cases)
     for test_case in test_cases:
         correct = test(*test_case)

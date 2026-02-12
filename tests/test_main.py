@@ -58,12 +58,14 @@ from main import (
     remove_word_emphasis,
     replace_bad,
     replace_ellipsis,
+    replacer,
     restore_documents,
     reverse_content,
     save_document,
     sort_dates,
     stylize_title,
     sum_nested_list,
+    tag_pre,
     word_count,
     word_count_aggregator,
     word_count_memo,
@@ -1925,3 +1927,118 @@ class TestIsPalindrome:
     def test_one_char_difference(self) -> None:
         """Test that a near-palindrome returns False."""
         assert is_palindrome("racecab") is False
+
+
+class TestReplacer:
+    """Tests for replacer decorator factory."""
+
+    def test_returns_decorator(self) -> None:
+        """Test that replacer returns a callable decorator."""
+        decorator = replacer("old", "new")
+        assert callable(decorator)
+
+    def test_decorator_returns_callable(self) -> None:
+        """Test that the decorator returns a callable wrapper."""
+        decorator = replacer("old", "new")
+
+        def identity(text: str) -> str:
+            return text
+
+        wrapped = decorator(identity)
+        assert callable(wrapped)
+
+    def test_replaces_before_calling_decorated(self) -> None:
+        """Test that replacement happens before the decorated function runs."""
+
+        @replacer("bad", "good")
+        def identity(text: str) -> str:
+            return text
+
+        assert identity("bad day") == "good day"
+
+    def test_no_match_leaves_text_unchanged(self) -> None:
+        """Test that text without the target string is unchanged."""
+
+        @replacer("xyz", "abc")
+        def identity(text: str) -> str:
+            return text
+
+        assert identity("hello world") == "hello world"
+
+    def test_multiple_occurrences_replaced(self) -> None:
+        """Test that all occurrences are replaced."""
+
+        @replacer("a", "b")
+        def identity(text: str) -> str:
+            return text
+
+        assert identity("aaa") == "bbb"
+
+    def test_stacked_replacers(self) -> None:
+        """Test that multiple replacer decorators stack correctly."""
+
+        @replacer("a", "b")
+        @replacer("c", "d")
+        def identity(text: str) -> str:
+            return text
+
+        assert identity("ac") == "bd"
+
+    def test_empty_string_input(self) -> None:
+        """Test that empty string input is handled."""
+
+        @replacer("x", "y")
+        def identity(text: str) -> str:
+            return text
+
+        assert identity("") == ""
+
+    def test_decorated_function_logic_preserved(self) -> None:
+        """Test that the decorated function's logic still applies."""
+
+        @replacer("hello", "hi")
+        def shout(text: str) -> str:
+            return text.upper()
+
+        assert shout("hello world") == "HI WORLD"
+
+
+class TestTagPre:
+    """Tests for tag_pre function."""
+
+    def test_wraps_text_in_pre_tags(self) -> None:
+        """Test that plain text is wrapped in pre tags."""
+        assert tag_pre("hello") == "<pre>hello</pre>"
+
+    def test_escapes_ampersand(self) -> None:
+        """Test that ampersands are escaped to HTML entities."""
+        assert tag_pre("a & b") == "<pre>a &amp; b</pre>"
+
+    def test_escapes_less_than(self) -> None:
+        """Test that less-than signs are escaped to HTML entities."""
+        assert tag_pre("a < b") == "<pre>a &lt; b</pre>"
+
+    def test_escapes_greater_than(self) -> None:
+        """Test that greater-than signs are escaped to HTML entities."""
+        assert tag_pre("a > b") == "<pre>a &gt; b</pre>"
+
+    def test_escapes_double_quote(self) -> None:
+        """Test that double quotes are escaped to HTML entities."""
+        assert tag_pre('say "hi"') == "<pre>say &quot;hi&quot;</pre>"
+
+    def test_escapes_single_quote(self) -> None:
+        """Test that single quotes are escaped to HTML entities."""
+        assert tag_pre("it's") == "<pre>it&#x27;s</pre>"
+
+    def test_escapes_all_special_characters(self) -> None:
+        """Test that all special characters are escaped in one string."""
+        result = tag_pre("&<>\"'")
+        assert result == "<pre>&amp;&lt;&gt;&quot;&#x27;</pre>"
+
+    def test_no_special_characters(self) -> None:
+        """Test that text without special characters is unchanged."""
+        assert tag_pre("plain text") == "<pre>plain text</pre>"
+
+    def test_empty_string(self) -> None:
+        """Test that empty string is wrapped in pre tags."""
+        assert tag_pre("") == "<pre></pre>"
