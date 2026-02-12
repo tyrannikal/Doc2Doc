@@ -525,6 +525,22 @@ def tag_pre(text: str) -> str:
     return f"<pre>{text}</pre>"
 
 
+class MaybeParsed:
+    pass
+
+
+class Parsed(MaybeParsed):
+    def __init__(self, doc_name: str, text: str) -> None:
+        self.doc_name = doc_name
+        self.text = text
+
+
+class ParseError(MaybeParsed):
+    def __init__(self, doc_name: str, err: str) -> None:
+        self.doc_name = doc_name
+        self.err = err
+
+
 def main() -> None:
     db_errors = [
         "out of memory",

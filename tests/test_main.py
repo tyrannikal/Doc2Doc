@@ -9,7 +9,10 @@ from typing import TYPE_CHECKING
 import pytest
 
 from main import (
+    MaybeParsed,
     NestedDocument,
+    Parsed,
+    ParseError,
     add_border,
     add_custom_command,
     add_format,
@@ -2042,3 +2045,70 @@ class TestTagPre:
     def test_empty_string(self) -> None:
         """Test that empty string is wrapped in pre tags."""
         assert tag_pre("") == "<pre></pre>"
+
+
+class TestMaybeParsed:
+    """Tests for MaybeParsed base class."""
+
+    def test_instantiation(self) -> None:
+        """Test that MaybeParsed can be instantiated."""
+        result = MaybeParsed()
+        assert isinstance(result, MaybeParsed)
+
+    def test_is_base_for_parsed(self) -> None:
+        """Test that Parsed is a subclass of MaybeParsed."""
+        assert issubclass(Parsed, MaybeParsed)
+
+    def test_is_base_for_parse_error(self) -> None:
+        """Test that ParseError is a subclass of MaybeParsed."""
+        assert issubclass(ParseError, MaybeParsed)
+
+
+class TestParsed:
+    """Tests for Parsed class."""
+
+    def test_stores_doc_name(self) -> None:
+        """Test that doc_name attribute is stored correctly."""
+        parsed = Parsed("readme.md", "hello world")
+        assert parsed.doc_name == "readme.md"
+
+    def test_stores_text(self) -> None:
+        """Test that text attribute is stored correctly."""
+        parsed = Parsed("readme.md", "hello world")
+        assert parsed.text == "hello world"
+
+    def test_is_instance_of_maybe_parsed(self) -> None:
+        """Test that Parsed instance is also a MaybeParsed instance."""
+        parsed = Parsed("doc.txt", "content")
+        assert isinstance(parsed, MaybeParsed)
+
+    def test_empty_strings(self) -> None:
+        """Test that empty strings are accepted for both fields."""
+        parsed = Parsed("", "")
+        assert parsed.doc_name == ""
+        assert parsed.text == ""
+
+
+class TestParseError:
+    """Tests for ParseError class."""
+
+    def test_stores_doc_name(self) -> None:
+        """Test that doc_name attribute is stored correctly."""
+        error = ParseError("bad.md", "syntax error")
+        assert error.doc_name == "bad.md"
+
+    def test_stores_err(self) -> None:
+        """Test that err attribute is stored correctly."""
+        error = ParseError("bad.md", "syntax error")
+        assert error.err == "syntax error"
+
+    def test_is_instance_of_maybe_parsed(self) -> None:
+        """Test that ParseError instance is also a MaybeParsed instance."""
+        error = ParseError("file.txt", "failed")
+        assert isinstance(error, MaybeParsed)
+
+    def test_empty_strings(self) -> None:
+        """Test that empty strings are accepted for both fields."""
+        error = ParseError("", "")
+        assert error.doc_name == ""
+        assert error.err == ""

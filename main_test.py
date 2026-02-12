@@ -1,56 +1,42 @@
 
 from main import *
 
-
 run_cases = [
-    (
-        replacer("faith", "salmon")(lambda x: x),
-        'replacer("faith", "salmon")(lambda x: x)',
-        "I find your lack of faith disturbing, young Skywalker.",
-        "I find your lack of salmon disturbing, young Skywalker.",
-    ),
-    (
-        replacer("paragraph", "span")(replacer("p>", "span>")(lambda x: x)),
-        'replacer("paragraph", "span")(replacer("p>", "span>")(lambda x: x))',
-        "<p>Here is a paragraph</p>",
-        "<span>Here is a span</span>",
-    ),
-    (
-        tag_pre,
-        "tag_pre",
-        '<a href="https://blog.boot.dev/wiki/troubleshoot-code-editor-issues/">link</a>',
-        "<pre>&lt;a href=&quot;https://blog.boot.dev/wiki/troubleshoot-code-editor-issues/&quot;&gt;link&lt;/a&gt;</pre>",
-    ),
+    Parsed("why_fp.txt", "Because we're better than everyone else"),
+    ParseError("why_fp.docx", "Can't handle weird windows files"),
 ]
 
 submit_cases = run_cases + [
-    (
-        tag_pre,
-        "tag_pre",
-        '<img src="https://imgur.com/a/VlMAK0B" alt="mystery">',
-        "<pre>&lt;img src=&quot;https://imgur.com/a/VlMAK0B&quot; alt=&quot;mystery&quot;&gt;</pre>",
-    ),
-    (
-        tag_pre,
-        "tag_pre",
-        "<p>This paragraph has <em>italic text</em></p>",
-        "<pre>&lt;p&gt;This paragraph has &lt;em&gt;italic text&lt;/em&gt;&lt;/p&gt;</pre>",
-    ),
+    Parsed("why_fp.md", "Because we're better than everyone else"),
+    ParseError("why_fp.pdf", "Can't handle weird adobe files"),
 ]
 
 
-def test(func, func_name, input, expected_output):
+def test(obj):
     print("---------------------------------")
-    print(f"Function: {func_name}")
-    print(f"    Input: {input}")
-    print(f"Expected: {expected_output}")
-    result = func(input)
-    print(f"Actual:   {result}")
-    if result == expected_output:
-        print("Pass")
-        return True
-    print("Fail")
-    return False
+    print(f"Testing properties of {obj.doc_name}...")
+    if isinstance(obj, Parsed):
+        if not obj.text:
+            print(f"Expecting .text to be non-empty")
+            print("Fail")
+            return False
+        if not obj.doc_name:
+            print(f"Expecting .doc_name to be non-empty")
+            print("Fail")
+            return False
+    elif isinstance(obj, ParseError):
+        if not obj.err:
+            print(f"Expecting .err to be non-empty")
+            print("Fail")
+            return False
+        if not obj.doc_name:
+            print(f"Expecting .doc_name to be non-empty")
+            print("Fail")
+            return False
+    else:
+        raise ValueError(f"unknown class type for: {obj}")
+    print("Pass")
+    return True
 
 
 def main():
@@ -58,7 +44,7 @@ def main():
     failed = 0
     skipped = len(submit_cases) - len(test_cases)
     for test_case in test_cases:
-        correct = test(*test_case)
+        correct = test(test_case)
         if correct:
             passed += 1
         else:
