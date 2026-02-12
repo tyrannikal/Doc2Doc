@@ -2,41 +2,28 @@
 from main import *
 
 run_cases = [
-    Parsed("why_fp.txt", "Because we're better than everyone else"),
-    ParseError("why_fp.docx", "Can't handle weird windows files"),
+    (lambda: Doctype.PDF, "Doctype.PDF", False),
+    (lambda: Doctype.TXT, "Doctype.TXT", False),
+    (lambda: Doctype.DOCX, "Doctype.DOCX", False),
+    (lambda: Doctype.MD, "Doctype.MD", False),
 ]
 
 submit_cases = run_cases + [
-    Parsed("why_fp.md", "Because we're better than everyone else"),
-    ParseError("why_fp.pdf", "Can't handle weird adobe files"),
+    (lambda: Doctype.HTML, "Doctype.HTML", False),
+    (lambda: Doctype.Invalid, "Doctype.Invalid", True),
 ]
 
 
-def test(obj):
+def test(func, name, is_err):
     print("---------------------------------")
-    print(f"Testing properties of {obj.doc_name}...")
-    if isinstance(obj, Parsed):
-        if not obj.text:
-            print(f"Expecting .text to be non-empty")
-            print("Fail")
-            return False
-        if not obj.doc_name:
-            print(f"Expecting .doc_name to be non-empty")
-            print("Fail")
-            return False
-    elif isinstance(obj, ParseError):
-        if not obj.err:
-            print(f"Expecting .err to be non-empty")
-            print("Fail")
-            return False
-        if not obj.doc_name:
-            print(f"Expecting .doc_name to be non-empty")
-            print("Fail")
-            return False
-    else:
-        raise ValueError(f"unknown class type for: {obj}")
-    print("Pass")
-    return True
+    print(f"Checking value: {name}")
+    try:
+        val = func()
+        print(f"...Valid enum value!")
+        return not is_err
+    except Exception as e:
+        print(f"...Invalid enum value!")
+        return is_err
 
 
 def main():
@@ -44,10 +31,12 @@ def main():
     failed = 0
     skipped = len(submit_cases) - len(test_cases)
     for test_case in test_cases:
-        correct = test(test_case)
+        correct = test(*test_case)
         if correct:
+            print("Pass")
             passed += 1
         else:
+            print("Fail")
             failed += 1
     if failed == 0:
         print("============= PASS ==============")

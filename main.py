@@ -1,5 +1,6 @@
 import copy
 from collections.abc import Callable
+from enum import Enum
 from functools import lru_cache, reduce
 from typing import Any
 
@@ -12,6 +13,7 @@ HEX_COLOR_LENGTH = 6
 default_commands = {}
 default_formats = ["txt", "md", "html"]
 saved_documents = {}
+Doctype = Enum("DocType", ["PDF", "TXT", "DOCX", "MD", "HTML"])
 
 
 def stylize_title(document: str) -> str:
