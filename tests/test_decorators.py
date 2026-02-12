@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from decorators import configure_plugin_decorator
+from decorators import (
+    configure_plugin_decorator,
+    convert_md_to_txt,
+    markdown_to_text_decorator,
+)
 
 
 class TestConfigurePluginDecorator:
@@ -56,3 +60,81 @@ class TestConfigurePluginDecorator:
 
         result = dummy(("name", "custom"))
         assert result == {"name": "custom", "extra": "added"}
+
+
+class TestConvertMdToTxt:
+    """Tests for convert_md_to_txt."""
+
+    def test_strips_h1_header(self) -> None:
+        """Test that h1 markdown header is stripped."""
+        assert convert_md_to_txt("# Title") == "Title"
+
+    def test_strips_h2_header(self) -> None:
+        """Test that h2 markdown header is stripped."""
+        assert convert_md_to_txt("## Subtitle") == "Subtitle"
+
+    def test_plain_text_unchanged(self) -> None:
+        """Test that plain text without headers is unchanged."""
+        assert convert_md_to_txt("Hello world") == "Hello world"
+
+    def test_multiline_with_mixed_headers(self) -> None:
+        """Test multi-line doc with headers and plain text."""
+        doc = "# Title\nBody text\n## Section"
+        result = convert_md_to_txt(doc)
+        assert result == "Title\nBody text\nSection"
+
+    def test_empty_string(self) -> None:
+        """Test that empty string returns empty string."""
+        assert convert_md_to_txt("") == ""
+
+
+class TestMarkdownToTextDecorator:
+    """Tests for markdown_to_text_decorator."""
+
+    def test_returns_callable(self) -> None:
+        """Test that the decorator returns a callable."""
+
+        @markdown_to_text_decorator
+        def dummy(text: str) -> str:
+            return text
+
+        assert callable(dummy)
+
+    def test_converts_positional_args(self) -> None:
+        """Test that positional args are converted from markdown."""
+
+        @markdown_to_text_decorator
+        def dummy(a: str, b: str) -> str:
+            return f"{a}|{b}"
+
+        result = dummy("# Hello", "## World")
+        assert result == "Hello|World"
+
+    def test_converts_keyword_args(self) -> None:
+        """Test that keyword args are converted from markdown."""
+
+        @markdown_to_text_decorator
+        def dummy(title: str = "", body: str = "") -> str:
+            return f"{title}|{body}"
+
+        result = dummy(title="# Header", body="## Sub")
+        assert result == "Header|Sub"
+
+    def test_converts_mixed_positional_and_keyword(self) -> None:
+        """Test that both positional and keyword args are converted."""
+
+        @markdown_to_text_decorator
+        def dummy(a: str, b: str = "") -> str:
+            return f"{a}|{b}"
+
+        result = dummy("# Pos", b="## Kw")
+        assert result == "Pos|Kw"
+
+    def test_plain_text_passes_through(self) -> None:
+        """Test that plain text args pass through unchanged."""
+
+        @markdown_to_text_decorator
+        def dummy(text: str) -> str:
+            return text
+
+        assert dummy("no markdown here") == "no markdown here"
