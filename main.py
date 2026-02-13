@@ -13,7 +13,7 @@ HEX_COLOR_LENGTH = 6
 default_commands = {}
 default_formats = ["txt", "md", "html"]
 saved_documents = {}
-Doctype = Enum("DocType", ["PDF", "TXT", "DOCX", "MD", "HTML"])
+DocFormat = Enum("DocFormat", ["PDF", "TXT", "MD", "HTML"])
 
 
 def stylize_title(document: str) -> str:
@@ -541,6 +541,20 @@ class ParseError(MaybeParsed):
     def __init__(self, doc_name: str, err: str) -> None:
         self.doc_name = doc_name
         self.err = err
+
+
+def convert_format(content: str, from_format: DocFormat, to_format: DocFormat) -> str:
+    match (from_format, to_format):
+        case (DocFormat.MD, DocFormat.HTML):
+            new_content = content.replace("# ", "<h1>", 1) + "</h1>"
+        case (DocFormat.TXT, DocFormat.PDF):
+            new_content = f"[PDF] {content} [PDF]"
+        case (DocFormat.HTML, DocFormat.MD):
+            new_content = content.replace("<h1>", "# ")
+            new_content = new_content.replace("</h1>", "")
+        case _:
+            raise ValueError("invalid type")
+    return new_content
 
 
 def main() -> None:

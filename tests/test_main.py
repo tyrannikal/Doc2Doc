@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from main import (
+    DocFormat,
     MaybeParsed,
     NestedDocument,
     Parsed,
@@ -25,6 +26,7 @@ from main import (
     colon_delimit,
     convert_case,
     convert_file_format,
+    convert_format,
     convert_line,
     converted_font_size,
     count_nested_levels,
@@ -2112,3 +2114,42 @@ class TestParseError:
         error = ParseError("", "")
         assert error.doc_name == ""
         assert error.err == ""
+
+
+class TestConvertFormat:
+    """Tests for convert_format function."""
+
+    def test_md_to_html(self) -> None:
+        """Test converting markdown heading to HTML heading."""
+        result = convert_format("# Hello, world!", DocFormat.MD, DocFormat.HTML)
+        assert result == "<h1>Hello, world!</h1>"
+
+    def test_txt_to_pdf(self) -> None:
+        """Test converting plain text to PDF wrapper."""
+        result = convert_format("This is plain text.", DocFormat.TXT, DocFormat.PDF)
+        assert result == "[PDF] This is plain text. [PDF]"
+
+    def test_html_to_md(self) -> None:
+        """Test converting HTML heading to markdown heading."""
+        result = convert_format("<h1>Title</h1>", DocFormat.HTML, DocFormat.MD)
+        assert result == "# Title"
+
+    def test_unsupported_conversion_raises(self) -> None:
+        """Test that an unsupported conversion raises ValueError."""
+        with pytest.raises(ValueError, match="invalid type"):
+            convert_format("content", DocFormat.PDF, DocFormat.HTML)
+
+    def test_md_to_html_replaces_only_first_heading(self) -> None:
+        """Test that only the first markdown heading marker is replaced."""
+        result = convert_format("# First\n# Second", DocFormat.MD, DocFormat.HTML)
+        assert result == "<h1>First\n# Second</h1>"
+
+    def test_html_to_md_removes_closing_tag(self) -> None:
+        """Test that the closing h1 tag is removed in HTML to MD."""
+        result = convert_format("<h1>Heading</h1>", DocFormat.HTML, DocFormat.MD)
+        assert "</h1>" not in result
+
+    def test_same_format_raises(self) -> None:
+        """Test that converting to the same format raises ValueError."""
+        with pytest.raises(ValueError, match="invalid type"):
+            convert_format("content", DocFormat.MD, DocFormat.MD)
