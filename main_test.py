@@ -2,43 +2,151 @@
 from main import *
 
 try:
-    DocFormat.MD and DocFormat.HTML and DocFormat.PDF and DocFormat.TXT
+    (
+        CSVExportStatus.PENDING
+        and CSVExportStatus.PROCESSING
+        and CSVExportStatus.SUCCESS
+        and CSVExportStatus.FAILURE
+    )
 except Exception as error:
     print(f"Error: Missing attribute {error} from enum")
 
-    class DocFormat(Enum):
-        PDF = None
-        TXT = None
-        MD = None
-        HTML = None
+    class CSVExportStatus(Enum):
+        PENDING = None
+        PROCESSING = None
+        SUCCESS = None
+        FAILURE = None
 
 
 run_cases = [
-    ("# Hello, world!", DocFormat.MD, DocFormat.HTML, "<h1>Hello, world!</h1>"),
     (
-        "This is plain text.",
-        DocFormat.TXT,
-        DocFormat.PDF,
-        "[PDF] This is plain text. [PDF]",
+        CSVExportStatus.PENDING,
+        [
+            ["Customer ID", "Billed", "Paid"],
+            [1, 100, 100],
+            [2, 400, 99],
+            [3, 50, 25],
+        ],
+        (
+            "Pending...",
+            [
+                ["Customer ID", "Billed", "Paid"],
+                ["1", "100", "100"],
+                ["2", "400", "99"],
+                ["3", "50", "25"],
+            ],
+        ),
+    ),
+    (
+        CSVExportStatus.PROCESSING,
+        [
+            ["Customer ID", "Billed", "Paid"],
+            ["1", "100", "100"],
+            ["2", "400", "99"],
+            ["3", "50", "25"],
+        ],
+        (
+            "Processing...",
+            "Customer ID,Billed,Paid\n1,100,100\n2,400,99\n3,50,25",
+        ),
+    ),
+    (
+        CSVExportStatus.SUCCESS,
+        "Customer ID,Billed,Paid\n1,100,100\n2,400,99\n3,50,25",
+        (
+            "Success!",
+            "Customer ID,Billed,Paid\n1,100,100\n2,400,99\n3,50,25",
+        ),
+    ),
+    (
+        CSVExportStatus.FAILURE,
+        [
+            ["Customer ID", "Billed", "Paid"],
+            [1, 100, 100],
+            [2, 400, 99],
+            [3, 50, 25],
+        ],
+        (
+            "Unknown error, retrying...",
+            "Customer ID,Billed,Paid\n1,100,100\n2,400,99\n3,50,25",
+        ),
     ),
 ]
 
 submit_cases = run_cases + [
-    ("<h1>Title</h1>", DocFormat.HTML, DocFormat.MD, "# Title"),
-    ("Something wicked", DocFormat.TXT, None, "invalid type"),
+    (
+        CSVExportStatus.PENDING,
+        [
+            ["Card Name", "Condition", "Value"],
+            ["Sparky Mouse", "Fair", 100],
+            ["Moist Turtle", "Good", 200],
+            ["Burning Lizard", "Very Good", 1000],
+            ["Mossy Frog", "Poor", 10],
+        ],
+        (
+            "Pending...",
+            [
+                ["Card Name", "Condition", "Value"],
+                ["Sparky Mouse", "Fair", "100"],
+                ["Moist Turtle", "Good", "200"],
+                ["Burning Lizard", "Very Good", "1000"],
+                ["Mossy Frog", "Poor", "10"],
+            ],
+        ),
+    ),
+    (
+        CSVExportStatus.PROCESSING,
+        [
+            ["Card Name", "Condition", "Value"],
+            ["Sparky Mouse", "Fair", "100"],
+            ["Moist Turtle", "Good", "200"],
+            ["Burning Lizard", "Very Good", "1000"],
+            ["Mossy Frog", "Poor", "10"],
+        ],
+        (
+            "Processing...",
+            "Card Name,Condition,Value\nSparky Mouse,Fair,100\nMoist Turtle,Good,200\nBurning Lizard,Very Good,1000\nMossy Frog,Poor,10",
+        ),
+    ),
+    (
+        CSVExportStatus.SUCCESS,
+        "Card Name,Condition,Value\nSparky Mouse,Fair,100\nMoist Turtle,Good,200\nBurning Lizard,Very Good,1000\nMossy Frog,Poor,10",
+        (
+            "Success!",
+            "Card Name,Condition,Value\nSparky Mouse,Fair,100\nMoist Turtle,Good,200\nBurning Lizard,Very Good,1000\nMossy Frog,Poor,10",
+        ),
+    ),
+    (
+        CSVExportStatus.FAILURE,
+        [
+            ["Card Name", "Condition", "Value"],
+            ["Sparky Mouse", "Fair", 100],
+            ["Moist Turtle", "Good", 200],
+            ["Burning Lizard", "Very Good", 1000],
+            ["Mossy Frog", "Poor", 10],
+        ],
+        (
+            "Unknown error, retrying...",
+            "Card Name,Condition,Value\nSparky Mouse,Fair,100\nMoist Turtle,Good,200\nBurning Lizard,Very Good,1000\nMossy Frog,Poor,10",
+        ),
+    ),
+    (1, None, ("Exception Raised:", "unknown export status")),
 ]
 
 
-def test(content, from_format, to_format, expected_output):
+def test(status, data, expected_output):
     print("---------------------------------")
-    print(f"Converting from {from_format} to {to_format}...")
-    print(f"Content: {content}")
-    print(f"Expected: {expected_output}")
+    print(f"Checking: {status}")
+    print("Expected:")
+    print(f"{expected_output[0]}")
+    print(f"{expected_output[1]}")
     try:
-        result = convert_format(content, from_format, to_format)
+        result = get_csv_status(status, data)
     except Exception as e:
-        result = str(e)
-    print(f"Actual: {result}")
+        result = expected_output[0], str(e)
+    print("Actual:")
+    print(f"{result[0]}")
+    print(f"{result[1]}")
     if result == expected_output:
         print("Pass")
         return True

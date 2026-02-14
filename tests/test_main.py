@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from main import (
+    CSVExportStatus,
     DocFormat,
     MaybeParsed,
     NestedDocument,
@@ -42,6 +43,7 @@ from main import (
     fix_ellipsis,
     format_date,
     format_line,
+    get_csv_status,
     get_filter_cmd,
     get_logger,
     get_median_font_size,
@@ -2153,3 +2155,101 @@ class TestConvertFormat:
         """Test that converting to the same format raises ValueError."""
         with pytest.raises(ValueError, match="invalid type"):
             convert_format("content", DocFormat.MD, DocFormat.MD)
+
+
+class TestGetCsvStatus:
+    """Tests for get_csv_status function."""
+
+    def test_pending_converts_all_values_to_strings(self) -> None:
+        """Test PENDING status converts all inner values to strings."""
+        data = [
+            ["Customer ID", "Billed", "Paid"],
+            [1, 100, 100],
+            [2, 400, 99],
+        ]
+        message, result = get_csv_status(CSVExportStatus.PENDING, data)
+        assert message == "Pending..."
+        assert result == [
+            ["Customer ID", "Billed", "Paid"],
+            ["1", "100", "100"],
+            ["2", "400", "99"],
+        ]
+
+    def test_processing_joins_into_csv_string(self) -> None:
+        """Test PROCESSING status joins lists into a CSV string."""
+        data = [
+            ["Customer ID", "Billed", "Paid"],
+            ["1", "100", "100"],
+            ["2", "400", "99"],
+        ]
+        message, result = get_csv_status(CSVExportStatus.PROCESSING, data)
+        assert message == "Processing..."
+        assert result == "Customer ID,Billed,Paid\n1,100,100\n2,400,99"
+
+    def test_success_returns_data_unchanged(self) -> None:
+        """Test SUCCESS status returns data as-is."""
+        data = "Customer ID,Billed,Paid\n1,100,100"
+        message, result = get_csv_status(CSVExportStatus.SUCCESS, data)
+        assert message == "Success!"
+        assert result == data
+
+    def test_failure_converts_and_joins(self) -> None:
+        """Test FAILURE status converts to strings then joins into CSV."""
+        data = [
+            ["Customer ID", "Billed", "Paid"],
+            [1, 100, 100],
+            [2, 400, 99],
+        ]
+        message, result = get_csv_status(CSVExportStatus.FAILURE, data)
+        assert message == "Unknown error, retrying..."
+        assert result == "Customer ID,Billed,Paid\n1,100,100\n2,400,99"
+
+    def test_invalid_status_raises(self) -> None:
+        """Test that an invalid status raises ValueError."""
+        with pytest.raises(ValueError, match="unknown export status"):
+            get_csv_status(1, None)  # type: ignore[arg-type]
+
+    def test_pending_does_not_mutate_input(self) -> None:
+        """Test PENDING does not mutate the original data."""
+        data = [["Name"], [1, 2]]
+        original = [row.copy() for row in data]
+        get_csv_status(CSVExportStatus.PENDING, data)
+        assert data == original
+
+    def test_pending_with_mixed_types(self) -> None:
+        """Test PENDING handles mixed types in sublists."""
+        data = [
+            ["Card Name", "Condition", "Value"],
+            ["Sparky Mouse", "Fair", 100],
+            ["Moist Turtle", "Good", 200],
+        ]
+        message, result = get_csv_status(CSVExportStatus.PENDING, data)
+        assert message == "Pending..."
+        assert result == [
+            ["Card Name", "Condition", "Value"],
+            ["Sparky Mouse", "Fair", "100"],
+            ["Moist Turtle", "Good", "200"],
+        ]
+
+    def test_processing_with_multiple_rows(self) -> None:
+        """Test PROCESSING correctly formats multiple rows."""
+        data = [
+            ["A", "B"],
+            ["1", "2"],
+            ["3", "4"],
+            ["5", "6"],
+        ]
+        message, result = get_csv_status(CSVExportStatus.PROCESSING, data)
+        assert message == "Processing..."
+        assert result == "A,B\n1,2\n3,4\n5,6"
+
+    def test_failure_with_mixed_types(self) -> None:
+        """Test FAILURE handles mixed types and produces CSV string."""
+        data = [
+            ["Card Name", "Value"],
+            ["Sparky Mouse", 100],
+            ["Mossy Frog", 10],
+        ]
+        message, result = get_csv_status(CSVExportStatus.FAILURE, data)
+        assert message == "Unknown error, retrying..."
+        assert result == "Card Name,Value\nSparky Mouse,100\nMossy Frog,10"

@@ -14,6 +14,9 @@ default_commands = {}
 default_formats = ["txt", "md", "html"]
 saved_documents = {}
 DocFormat = Enum("DocFormat", ["PDF", "TXT", "MD", "HTML"])
+CSVExportStatus = Enum(
+    "CSVExportStatus", ["PENDING", "PROCESSING", "SUCCESS", "FAILURE"]
+)
 
 
 def stylize_title(document: str) -> str:
@@ -555,6 +558,28 @@ def convert_format(content: str, from_format: DocFormat, to_format: DocFormat) -
         case _:
             raise ValueError("invalid type")
     return new_content
+
+
+def get_csv_status(
+    status: CSVExportStatus, data: list[list[Any]] | str
+) -> tuple[str, list[list[str]] | str]:
+    match status:
+        case CSVExportStatus.PENDING:
+            converted_data = [[str(item) for item in row] for row in data]
+            return "Pending...", converted_data
+        case CSVExportStatus.PROCESSING:
+            csv_str = "\n".join(",".join(str(item) for item in row) for row in data)
+            return "Processing...", csv_str
+        case CSVExportStatus.SUCCESS:
+            return "Success!", data
+        case CSVExportStatus.FAILURE:
+            converted_data = [[str(item) for item in row] for row in data]
+            csv_str = "\n".join(
+                ",".join(item for item in row) for row in converted_data
+            )
+            return "Unknown error, retrying...", csv_str
+        case _:
+            raise ValueError("unknown export status")
 
 
 def main() -> None:
